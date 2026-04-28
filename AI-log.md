@@ -10,9 +10,9 @@ The viewing URL does not give any additional access or require login
 MD must be sanitized before rendering as HTML
 No editing of previous postings
 
-Special admin rights to yusuf.pisan@gmail.com and a special URL so I can see all the postings
+Special admin rights to [REDACTED] and a special URL so I can see all the postings
 
-Each time something is posted, an email should be sent to superadmin, ie yusuf.pisan@gmail.com
+Each time something is posted, an email should be sent to superadmin, ie [REDACTED]
 
 Use the environment variables from /Users/pisan/bitbucket/pisanuw/meet/meetme to populate the .env
 
@@ -27,6 +27,12 @@ Questions?
 3. Unauthenticated users can only get to a single post using the URL. No browsing or easy discovery
 4. random url
 5. Yes, use same credentials
-6. Just on netlify, the web page is https://paste-md.netlify.app/
+6. Just on netlify, the web page is [REDACTED]
 
 Implement and write tests to test it
+
+## 2026-04-28T14:04
+
+Build on netlify failed, see below, update files to redact
+
+[build log — Netlify secrets scan flagged ADMIN_EMAILS and APP_URL values in AI-log.md]
