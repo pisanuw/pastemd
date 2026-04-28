@@ -36,3 +36,13 @@ Implement and write tests to test it
 Build on netlify failed, see below, update files to redact
 
 [build log — Netlify secrets scan flagged ADMIN_EMAILS and APP_URL values in AI-log.md]
+
+## 2026-04-28T14:08
+
+When I click on Google link, i go to
+
+https://paste-md.netlify.app/api/auth/google/start
+
+gives me 
+
+{"error":"Not found"}

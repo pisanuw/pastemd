@@ -3,10 +3,10 @@
  *
  * All routes require the caller to be an admin (is_admin flag in JWT).
  *
- * Routes via context.params["0"]:
- *   GET  "posts"  — list all posts across all users
- *   DELETE "posts/:id" — admin delete any post
+ *   GET    /api/admin/posts         — list all posts across all users
+ *   DELETE /api/admin/posts/:id     — admin delete any post
  */
+export const config = { path: ["/api/admin", "/api/admin/*"] };
 import {
   getUserFromRequest,
   jsonResponse, errorResponse,
@@ -24,7 +24,7 @@ function requireAdmin(req) {
 }
 
 export default async function handler(req, context) {
-  const subPath = (context.params?.["0"] || "").replace(/^\//, "");
+  const subPath = new URL(req.url).pathname.replace(/^\/api\/admin\/?/, "");
   log("info", FN, "request", { method: req.method, path: subPath });
 
   // GET /api/admin/posts — list all posts

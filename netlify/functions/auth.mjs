@@ -1,14 +1,14 @@
 /**
  * auth.mjs — Authentication router
  *
- * Handles sub-paths via context.params["0"]:
- *   GET  google/start          — initiate Google OAuth
- *   GET  google/callback       — Google OAuth callback
- *   POST magic-link/request    — send magic link email
- *   GET  magic-link/verify     — verify magic link token
- *   POST logout                — clear session cookie
- *   GET  me                    — return current user info
+ *   GET  /api/auth/google/start          — initiate Google OAuth
+ *   GET  /api/auth/google/callback       — Google OAuth callback
+ *   POST /api/auth/magic-link/request    — send magic link email
+ *   GET  /api/auth/magic-link/verify     — verify magic link token
+ *   POST /api/auth/logout                — clear session cookie
+ *   GET  /api/auth/me                    — return current user info
  */
+export const config = { path: "/api/auth/*" };
 import {
   createToken, verifyToken, verifyTokenVerbose, getUserFromRequest,
   jsonResponse, errorResponse, redirectResponse, authRedirectResponse,
@@ -49,7 +49,7 @@ async function getOrCreateUser(email, name = "") {
 }
 
 export default async function handler(req, context) {
-  const subPath = (context.params?.["0"] || "").replace(/^\//, "");
+  const subPath = new URL(req.url).pathname.replace(/^\/api\/auth\/?/, "");
   log("info", FN, "request", { method: req.method, path: subPath });
 
   // ── GET /api/auth/google/start ─────────────────────────────────────────────

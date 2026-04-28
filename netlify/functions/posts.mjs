@@ -1,12 +1,12 @@
 /**
  * posts.mjs — Post CRUD router
  *
- * Routes via context.params["0"]:
- *   GET  ""       — list caller's own posts (auth required)
- *   POST ""       — create new post (auth required)
- *   GET  ":id"    — get single post, returns sanitized HTML (public)
- *   DELETE ":id"  — delete post (auth required, owner or admin)
+ *   GET    /api/posts       — list caller's own posts (auth required)
+ *   POST   /api/posts       — create new post (auth required)
+ *   GET    /api/posts/:id   — get single post, returns sanitized HTML (public)
+ *   DELETE /api/posts/:id   — delete post (auth required, owner or admin)
  */
+export const config = { path: ["/api/posts", "/api/posts/*"] };
 import {
   getUserFromRequest,
   jsonResponse, errorResponse,
@@ -41,7 +41,7 @@ async function notifyAdmin(post, req) {
 }
 
 export default async function handler(req, context) {
-  const subPath = (context.params?.["0"] || "").replace(/^\//, "");
+  const subPath = new URL(req.url).pathname.replace(/^\/api\/posts\/?/, "");
   log("info", FN, "request", { method: req.method, path: subPath });
 
   // ── Routes with a post ID (/api/posts/:id) ─────────────────────────────────
