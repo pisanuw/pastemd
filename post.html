@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loading… — PasteMD</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a href="/" class="logo">PasteMD</a>
+    <span class="spacer"></span>
+  </header>
+
+  <div class="container">
+    <div id="loading" class="loading" style="padding:4rem 0;"><span class="spinner"></span></div>
+    <div id="error-view" class="hidden">
+      <div class="alert alert-error" id="error-msg"></div>
+      <a href="/">← Back</a>
+    </div>
+    <div id="post-view" class="hidden">
+      <div class="post-header">
+        <h1 id="post-title"></h1>
+        <p class="post-meta">By <span id="post-author"></span> · <span id="post-date"></span></p>
+      </div>
+      <div class="post-body" id="post-body"></div>
+    </div>
+  </div>
+
+  <script src="/static/post.js"></script>
+</body>
+</html>

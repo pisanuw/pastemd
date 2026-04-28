@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check your email — PasteMD</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container" style="max-width:420px; padding-top:4rem;">
+    <div class="card" style="text-align:center;">
+      <div style="font-size:3rem; margin-bottom:1rem;">📬</div>
+      <h1 style="margin:0 0 .5rem; font-size:1.4rem;">Check your email</h1>
+      <p style="color:var(--muted);">
+        We sent a sign-in link to <strong id="email-display"></strong>.
+        The link expires in 15 minutes.
+      </p>
+      <a href="/" class="btn btn-secondary" style="margin-top:1rem;">Back to sign in</a>
+    </div>
+  </div>
+  <script>
+    const p = new URLSearchParams(location.search);
+    const el = document.getElementById("email-display");
+    if (el && p.get("email")) el.textContent = p.get("email");
+  </script>
+</body>
+</html>
