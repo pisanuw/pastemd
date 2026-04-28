@@ -41,8 +41,8 @@ Build on netlify failed, see below, update files to redact
 
 When I click on Google link, i go to
 
-https://paste-md.netlify.app/api/auth/google/start
+https://APP_URL/api/auth/google/start
 
-gives me 
+gives me
 
 {"error":"Not found"}
