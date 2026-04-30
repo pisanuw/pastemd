@@ -8,7 +8,7 @@
 import { getDb } from "./db.mjs";
 import { generateId } from "./utils-core.mjs";
 
-export async function createPost({ title, rawMd, sanitizedHtml, authorEmail, authorName }) {
+export async function createPost({ title, rawMd, sanitizedHtml, authorEmail, authorName, passwordHash, passwordSalt }) {
   const id = generateId();
   const post = {
     id,
@@ -18,6 +18,7 @@ export async function createPost({ title, rawMd, sanitizedHtml, authorEmail, aut
     authorEmail,
     authorName,
     createdAt: new Date().toISOString(),
+    ...(passwordHash ? { passwordHash, passwordSalt } : {}),
   };
 
   const postsDb = getDb("posts");

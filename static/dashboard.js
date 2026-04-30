@@ -121,6 +121,7 @@ document.getElementById("post-form").addEventListener("submit", async (e) => {
   const btn = document.getElementById("post-btn");
   const title = document.getElementById("post-title").value.trim();
   const content = document.getElementById("post-content").value;
+  const password = document.getElementById("post-password").value;
 
   document.getElementById("post-alert").classList.add("hidden");
   document.getElementById("success-box").classList.add("hidden");
@@ -132,7 +133,7 @@ document.getElementById("post-form").addEventListener("submit", async (e) => {
     const res = await fetch("/api/posts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, content }),
+      body: JSON.stringify({ title, content, ...(password ? { password } : {}) }),
     });
     const data = await res.json();
     if (res.ok) {

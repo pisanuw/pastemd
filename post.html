@@ -18,6 +18,20 @@
       <div class="alert alert-error" id="error-msg"></div>
       <a href="/">← Back</a>
     </div>
+    <div id="password-view" class="hidden">
+      <div class="card password-card">
+        <h2 class="password-card-title" id="pw-post-title"></h2>
+        <p class="post-meta" style="margin-bottom:1.5rem;">By <span id="pw-post-author"></span> · <span id="pw-post-date"></span></p>
+        <div class="alert alert-error hidden" id="pw-error"></div>
+        <form id="password-form">
+          <div class="form-group">
+            <label for="pw-input">Password required to view this post</label>
+            <input type="password" id="pw-input" placeholder="Enter password" autocomplete="current-password" required>
+          </div>
+          <button type="submit" class="btn btn-primary" id="pw-btn">Unlock</button>
+        </form>
+      </div>
+    </div>
     <div id="post-view" class="hidden">
       <div class="post-header">
         <h1 id="post-title"></h1>

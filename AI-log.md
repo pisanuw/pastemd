@@ -1,6 +1,11 @@
 # AI Log
 <!-- Record all user instructions verbatim, EXACTLY as typed, with timestamp. Update BEFORE any other work. -->
 
+## 2026-04-30T09:21
+Create an optonal password to view the shared page. The password once set cannot be changed. The superadministrator gets a copy of the password in the email
+
+Questions?
+
 ## 2026-04-28T13:38
 
 Create a web site that will require Google authentication or magic link to login.

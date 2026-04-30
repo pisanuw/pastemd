@@ -15,6 +15,7 @@ import {
   safeJson,
   sendEmail,
   renderMarkdown,
+  hashPassword, verifyPassword,
   createPost, getPost, deletePost, getUserPosts,
 } from "./utils.mjs";
 
@@ -22,11 +23,15 @@ const FN = "posts";
 const MAX_CONTENT_BYTES = 1_000_000; // 1 MB
 const MAX_TITLE_LEN = 200;
 
-async function notifyAdmin(post, req) {
+async function notifyAdmin(post, req, plainPassword) {
   const adminEmails = getAdminEmails();
   if (!adminEmails.length) return;
   const appUrl = getAppUrl(req);
   const postUrl = `${appUrl}/p/${post.id}`;
+  const passwordLine = plainPassword
+    ? `<p><strong>Password:</strong> ${plainPassword}</p>`
+    : "";
+  const passwordText = plainPassword ? `\nPassword: ${plainPassword}` : "";
   await sendEmail({
     to: adminEmails,
     subject: `[PasteMD] New post: ${post.title}`,
@@ -34,9 +39,10 @@ async function notifyAdmin(post, req) {
       <p><strong>${post.authorName}</strong> (${post.authorEmail}) posted a new document.</p>
       <p><strong>Title:</strong> ${post.title}</p>
       <p><strong>Posted:</strong> ${post.createdAt}</p>
+      ${passwordLine}
       <p><a href="${postUrl}">View post →</a></p>
     `,
-    text: `New PasteMD post by ${post.authorName} (${post.authorEmail})\nTitle: ${post.title}\nURL: ${postUrl}`,
+    text: `New PasteMD post by ${post.authorName} (${post.authorEmail})\nTitle: ${post.title}\nURL: ${postUrl}${passwordText}`,
   });
 }
 
@@ -44,14 +50,53 @@ export default async function handler(req, context) {
   const subPath = new URL(req.url).pathname.replace(/^\/api\/posts\/?/, "");
   log("info", FN, "request", { method: req.method, path: subPath });
 
-  // ── Routes with a post ID (/api/posts/:id) ─────────────────────────────────
+  // ── Routes with a post ID ─────────────────────────────────────────────────
   if (subPath) {
+    // POST /api/posts/:id/verify — verify password for a protected post
+    if (subPath.endsWith("/verify") && req.method === "POST") {
+      const id = subPath.slice(0, -"/verify".length);
+      const post = await getPost(id);
+      if (!post) return errorResponse(404, "Post not found");
+      if (!post.passwordHash) return errorResponse(400, "Post is not password-protected");
+
+      const body = await safeJson(req);
+      if (body === null) return errorResponse(400, "Invalid JSON");
+      const { password } = body;
+      if (!password || typeof password !== "string") {
+        return errorResponse(400, "Password is required");
+      }
+
+      if (!verifyPassword(password, post.passwordHash, post.passwordSalt)) {
+        return errorResponse(403, "Incorrect password");
+      }
+
+      return jsonResponse(200, {
+        id: post.id,
+        title: post.title,
+        sanitizedHtml: post.sanitizedHtml,
+        authorName: post.authorName,
+        createdAt: post.createdAt,
+      });
+    }
+
     const id = subPath;
 
     // GET /api/posts/:id — public, no auth required
     if (req.method === "GET") {
       const post = await getPost(id);
       if (!post) return errorResponse(404, "Post not found");
+
+      // Password-protected: return metadata only, signal client to prompt
+      if (post.passwordHash) {
+        return jsonResponse(200, {
+          id: post.id,
+          title: post.title,
+          authorName: post.authorName,
+          createdAt: post.createdAt,
+          passwordRequired: true,
+        });
+      }
+
       return jsonResponse(200, {
         id: post.id,
         title: post.title,
@@ -94,6 +139,7 @@ export default async function handler(req, context) {
 
     const title = (body.title || "").trim().slice(0, MAX_TITLE_LEN);
     const content = body.content || "";
+    const plainPassword = typeof body.password === "string" ? body.password : "";
 
     if (!title) return errorResponse(400, "Title is required");
     if (!content.trim()) return errorResponse(400, "Content is required");
@@ -102,16 +148,22 @@ export default async function handler(req, context) {
     }
 
     const sanitizedHtml = renderMarkdown(content);
+    const { hash: passwordHash, salt: passwordSalt } = plainPassword
+      ? hashPassword(plainPassword)
+      : { hash: undefined, salt: undefined };
+
     const post = await createPost({
       title,
       rawMd: content,
       sanitizedHtml,
       authorEmail: user.email,
       authorName: user.name,
+      passwordHash,
+      passwordSalt,
     });
 
-    // Fire-and-forget admin notification
-    notifyAdmin(post, req).catch((err) =>
+    // Fire-and-forget admin notification (includes password if set)
+    notifyAdmin(post, req, plainPassword || undefined).catch((err) =>
       log("error", FN, "admin notification failed", { error: err.message })
     );
 

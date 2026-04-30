@@ -189,6 +189,63 @@ describe("posts API handler", () => {
     assert.equal(res.status, 403);
   });
 
+  it("POST /api/posts creates password-protected post and GET returns passwordRequired", async () => {
+    const req = makeRequest("POST", "http://localhost/api/posts", {
+      cookies: authCookie(alice),
+      body: { title: "Secret Post", content: "# Secret\nShhh.", password: "hunter2" },
+    });
+    const res = await handler(req, makeContext());
+    assert.equal(res.status, 201);
+    const { id } = await res.json();
+
+    const getReq = makeRequest("GET", `http://localhost/api/posts/${id}`);
+    const getRes = await handler(getReq, makeContext({ 0: id }));
+    assert.equal(getRes.status, 200);
+    const data = await getRes.json();
+    assert.equal(data.passwordRequired, true);
+    assert.equal(data.sanitizedHtml, undefined, "content must not be exposed without password");
+  });
+
+  it("POST /api/posts/:id/verify with correct password returns post content", async () => {
+    const { createPost: cp } = await import("../netlify/functions/lib/posts-store.mjs");
+    const { hashPassword } = await import("../netlify/functions/lib/utils-core.mjs");
+    const { hash, salt } = hashPassword("secret123");
+    const post = await cp({ title: "Protected", rawMd: "hi", sanitizedHtml: "<p>hi</p>", authorEmail: "alice@example.com", authorName: "Alice", passwordHash: hash, passwordSalt: salt });
+
+    const req = makeRequest("POST", `http://localhost/api/posts/${post.id}/verify`, {
+      body: { password: "secret123" },
+    });
+    const res = await handler(req, makeContext({ 0: `${post.id}/verify` }));
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.sanitizedHtml, "<p>hi</p>");
+  });
+
+  it("POST /api/posts/:id/verify with wrong password returns 403", async () => {
+    const { createPost: cp } = await import("../netlify/functions/lib/posts-store.mjs");
+    const { hashPassword } = await import("../netlify/functions/lib/utils-core.mjs");
+    const { hash, salt } = hashPassword("secret123");
+    const post = await cp({ title: "Protected", rawMd: "hi", sanitizedHtml: "<p>hi</p>", authorEmail: "alice@example.com", authorName: "Alice", passwordHash: hash, passwordSalt: salt });
+
+    const req = makeRequest("POST", `http://localhost/api/posts/${post.id}/verify`, {
+      body: { password: "wrongpassword" },
+    });
+    const res = await handler(req, makeContext({ 0: `${post.id}/verify` }));
+    assert.equal(res.status, 403);
+  });
+
+  it("GET /api/posts/:id returns full content for non-protected post", async () => {
+    const { createPost: cp } = await import("../netlify/functions/lib/posts-store.mjs");
+    const post = await cp({ title: "Public", rawMd: "hi", sanitizedHtml: "<p>hi</p>", authorEmail: "alice@example.com", authorName: "Alice" });
+
+    const req = makeRequest("GET", `http://localhost/api/posts/${post.id}`);
+    const res = await handler(req, makeContext({ 0: post.id }));
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.passwordRequired, undefined);
+    assert.equal(data.sanitizedHtml, "<p>hi</p>");
+  });
+
   it("GET /api/posts lists only caller's posts", async () => {
     const { createPost: cp } = await import("../netlify/functions/lib/posts-store.mjs");
     await cp({ title: "Alice's", rawMd: "a", sanitizedHtml: "<p>a</p>", authorEmail: "alice@example.com", authorName: "Alice" });

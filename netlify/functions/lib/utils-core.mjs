@@ -1,7 +1,7 @@
 /**
  * lib/utils-core.mjs — Pure utility functions
  */
-import { randomBytes } from "crypto";
+import { randomBytes, scryptSync, timingSafeEqual } from "crypto";
 
 /**
  * Generate a URL-safe random ID (12 characters).
@@ -19,6 +19,27 @@ export function validateEmail(email) {
   const trimmed = email.trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)) return null;
   return trimmed;
+}
+
+/**
+ * Hash a plaintext password. Returns { hash, salt } as hex strings.
+ */
+export function hashPassword(password) {
+  const salt = randomBytes(16).toString("hex");
+  const hash = scryptSync(password, salt, 64).toString("hex");
+  return { hash, salt };
+}
+
+/**
+ * Verify a plaintext password against a stored hash and salt.
+ */
+export function verifyPassword(password, hash, salt) {
+  try {
+    const derived = scryptSync(password, salt, 64);
+    return timingSafeEqual(derived, Buffer.from(hash, "hex"));
+  } catch {
+    return false;
+  }
 }
 
 /**
