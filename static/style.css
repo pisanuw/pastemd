@@ -255,6 +255,16 @@ textarea { min-height: 320px; font-family: "SFMono-Regular", Consolas, "Liberati
 .loading { text-align: center; padding: 2rem; color: var(--muted); }
 .hidden { display: none !important; }
 
+/* Preview badge in site header */
+.preview-badge {
+  font-size: .8rem;
+  color: #92400e;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  padding: .2rem .65rem;
+  border-radius: 4px;
+}
+
 /* Password prompt card */
 .password-card {
   max-width: 420px;

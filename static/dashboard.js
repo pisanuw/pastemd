@@ -115,6 +115,43 @@ fileInput.addEventListener("change", () => {
   }
 });
 
+// Preview button — renders markdown server-side and opens result in a new tab
+document.getElementById("preview-btn").addEventListener("click", async () => {
+  const title = document.getElementById("post-title").value.trim();
+  const content = document.getElementById("post-content").value;
+
+  if (!content.trim()) {
+    showPostAlert("Add some content before previewing.");
+    return;
+  }
+
+  // Open tab immediately (user gesture) to avoid popup blockers, then write content
+  const win = window.open("", "_blank");
+  if (!win) {
+    showPostAlert("Please allow pop-ups for this site to use preview.");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, content }),
+    });
+    if (res.ok) {
+      const html = await res.text();
+      win.document.write(html);
+      win.document.close();
+    } else {
+      win.close();
+      showPostAlert("Preview failed. Please try again.");
+    }
+  } catch {
+    win.close();
+    showPostAlert("Network error. Please try again.");
+  }
+});
+
 // Post form submission
 document.getElementById("post-form").addEventListener("submit", async (e) => {
   e.preventDefault();

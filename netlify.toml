@@ -29,6 +29,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/preview"
+  to = "/.netlify/functions/preview"
+  status = 200
+
+[[redirects]]
   from = "/api/admin"
   to = "/.netlify/functions/admin"
   status = 200
@@ -58,5 +63,11 @@
 # Post view: allow external images from markdown content
 [[headers]]
   for = "/p/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self'; img-src * data:; connect-src 'self'; frame-ancestors 'none';"
+
+# Preview: same relaxed image policy as post view
+[[headers]]
+  for = "/api/preview"
   [headers.values]
     Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self'; img-src * data:; connect-src 'self'; frame-ancestors 'none';"

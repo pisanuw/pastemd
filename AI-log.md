@@ -1,6 +1,11 @@
 # AI Log
 <!-- Record all user instructions verbatim, EXACTLY as typed, with timestamp. Update BEFORE any other work. -->
 
+## 2026-04-30T12:27
+Add an option for the author to view the markdown page rendered in HTML before submitting it. The optional view should open in a separate tab
+
+Questions?
+
 ## 2026-04-30T09:21
 Create an optonal password to view the shared page. The password once set cannot be changed. The superadministrator gets a copy of the password in the email
 
