@@ -14,6 +14,7 @@
   "dependencies": {
     "@netlify/blobs": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.12.0",
     "marked": "^12.0.0",
     "sanitize-html": "^2.13.0"
   },

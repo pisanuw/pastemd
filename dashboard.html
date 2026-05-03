@@ -11,7 +11,6 @@
     <a href="/dashboard.html" class="logo">PasteMD</a>
     <span class="spacer"></span>
     <span class="user-email" id="user-email"></span>
-    <a href="/admin.html" class="btn btn-secondary" id="admin-link" style="display:none; font-size:.85rem; padding:.35rem .8rem;">Admin</a>
     <button class="btn btn-secondary" id="logout-btn" style="font-size:.85rem; padding:.35rem .8rem;">Sign out</button>
   </header>
 
@@ -30,9 +29,13 @@
 
         <div class="form-group">
           <div class="file-row">
-            <label for="post-file" style="margin:0; cursor:pointer; color:var(--accent);">Upload .md file</label>
-            <input type="file" id="post-file" accept=".md,.markdown,text/markdown,text/plain" style="display:none;">
+            <label for="post-file" style="margin:0; cursor:pointer; color:var(--accent);">Upload .md or .docx file</label>
+            <input type="file" id="post-file" accept=".md,.markdown,.docx,text/markdown,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">
             <span id="file-name"></span>
+            <span id="file-converting" class="hidden" style="color:var(--muted); font-size:.8rem;">Converting…</span>
+          </div>
+          <div id="images-stripped-notice" class="alert alert-success hidden" style="margin-bottom:.75rem;">
+            Images were stripped from the Word document (text only is supported).
           </div>
           <label for="post-content">Markdown content</label>
           <textarea id="post-content" name="content" placeholder="# Hello world&#10;&#10;Write your markdown here…" required></textarea>

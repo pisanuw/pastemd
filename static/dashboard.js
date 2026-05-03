@@ -86,7 +86,12 @@ fetch("/api/auth/me")
     currentUser = await res.json();
     document.getElementById("user-email").textContent = currentUser.email;
     if (currentUser.is_admin) {
-      document.getElementById("admin-link").style.display = "";
+      const adminLink = document.createElement("a");
+      adminLink.href = "/admin.html";
+      adminLink.className = "btn btn-secondary";
+      adminLink.style.cssText = "font-size:.85rem; padding:.35rem .8rem;";
+      adminLink.textContent = "Admin";
+      document.getElementById("logout-btn").insertAdjacentElement("beforebegin", adminLink);
     }
     loadPosts();
   })
@@ -98,20 +103,53 @@ document.getElementById("logout-btn").addEventListener("click", async () => {
   location.replace("/");
 });
 
-// File upload → populate textarea
+// File upload → populate textarea (.md and .docx supported)
 const fileInput = document.getElementById("post-file");
 document.querySelector('label[for="post-file"]').addEventListener("click", () => fileInput.click());
-fileInput.addEventListener("change", () => {
+fileInput.addEventListener("change", async () => {
   const file = fileInput.files[0];
   if (!file) return;
+
   document.getElementById("file-name").textContent = file.name;
-  const reader = new FileReader();
-  reader.onload = (e) => { document.getElementById("post-content").value = e.target.result; };
-  reader.readAsText(file);
-  // Pre-fill title from filename (strip extension)
-  const titleEl = document.getElementById("post-title");
-  if (!titleEl.value) {
-    titleEl.value = file.name.replace(/\.(md|markdown)$/i, "").replace(/[-_]/g, " ");
+  document.getElementById("images-stripped-notice").classList.add("hidden");
+
+  if (/\.docx$/i.test(file.name)) {
+    // Word document: send to server for conversion
+    document.getElementById("file-converting").classList.remove("hidden");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/convert/docx", { method: "POST", body: formData });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        showPostAlert(d.error || "Failed to convert Word document.");
+        document.getElementById("file-name").textContent = "";
+        return;
+      }
+      const { markdown, title, imagesStripped } = await res.json();
+      document.getElementById("post-content").value = markdown;
+      const titleEl = document.getElementById("post-title");
+      if (!titleEl.value) {
+        titleEl.value = title || file.name.replace(/\.docx$/i, "").replace(/[-_]/g, " ");
+      }
+      if (imagesStripped) {
+        document.getElementById("images-stripped-notice").classList.remove("hidden");
+      }
+    } catch {
+      showPostAlert("Network error converting Word document. Please try again.");
+      document.getElementById("file-name").textContent = "";
+    } finally {
+      document.getElementById("file-converting").classList.add("hidden");
+    }
+  } else {
+    // Markdown file: read directly
+    const reader = new FileReader();
+    reader.onload = (e) => { document.getElementById("post-content").value = e.target.result; };
+    reader.readAsText(file);
+    const titleEl = document.getElementById("post-title");
+    if (!titleEl.value) {
+      titleEl.value = file.name.replace(/\.(md|markdown)$/i, "").replace(/[-_]/g, " ");
+    }
   }
 });
 

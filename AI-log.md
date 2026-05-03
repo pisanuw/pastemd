@@ -1,6 +1,13 @@
 # AI Log
 <!-- Record all user instructions verbatim, EXACTLY as typed, with timestamp. Update BEFORE any other work. -->
 
+## 2026-05-02T08:28
+Remove the Admin button if the user does not have admin access
+
+## 2026-05-02T08:23
+Allow users to upload word documents and convert them to display just like MD documents
+?
+
 ## 2026-04-30T12:27
 Add an option for the author to view the markdown page rendered in HTML before submitting it. The optional view should open in a separate tab
 
