@@ -68,6 +68,22 @@
       <p id="posts-empty" class="hidden" style="color:var(--muted); margin:0;">No posts yet.</p>
       <ul class="post-list" id="post-list"></ul>
     </div>
+
+    <!-- API access -->
+    <div class="card" style="margin-top:2rem;">
+      <h2 style="margin:0 0 .5rem; font-size:1.2rem;">API access</h2>
+      <p style="margin:0 0 1rem; color:var(--muted); font-size:.9rem;">
+        Generate a token to post programmatically. Send it as
+        <code>Authorization: Bearer &lt;token&gt;</code> on requests to
+        <code>POST /api/posts</code>. Token is valid for 365 days and carries
+        your identity — treat it like a password.
+      </p>
+      <button class="btn btn-secondary" id="api-token-btn">Generate API token</button>
+      <div id="api-token-box" class="alert alert-success hidden" style="margin-top:1rem;">
+        <p style="margin:0 0 .5rem;"><strong>Copy this token now — it will not be shown again:</strong></p>
+        <textarea id="api-token-value" readonly rows="3" style="width:100%; font-family:monospace; font-size:.8rem;"></textarea>
+      </div>
+    </div>
   </div>
 
   <script src="/static/dashboard.js"></script>

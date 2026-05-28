@@ -7,6 +7,7 @@
  *   GET  /api/auth/magic-link/verify     — verify magic link token
  *   POST /api/auth/logout                — clear session cookie
  *   GET  /api/auth/me                    — return current user info
+ *   POST /api/auth/api-token             — issue a 365d Bearer token for the current user
  */
 export const config = { path: "/api/auth/*" };
 import {
@@ -266,6 +267,25 @@ export default async function handler(req, context) {
       name: user.name,
       is_admin: !!user.is_admin,
     });
+  }
+
+  // ── POST /api/auth/api-token ───────────────────────────────────────────────
+  // Issues a long-lived Bearer token for programmatic access. Caller must be
+  // signed in via cookie (i.e. generated from the dashboard UI). The returned
+  // token carries the same identity as the cookie session, so all existing
+  // ownership and admin rules apply unchanged.
+  if (req.method === "POST" && subPath === "api-token") {
+    const user = getUserFromRequest(req);
+    if (!user) return errorResponse(401, "Unauthorized");
+    const token = createToken({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      is_admin: !!user.is_admin,
+      purpose: "api",
+    }, "365d");
+    log("info", FN, "api token issued", { email: user.email });
+    return jsonResponse(200, { token, expiresIn: "365d" });
   }
 
   log("warn", FN, "no route matched", { method: req.method, path: subPath });

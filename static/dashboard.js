@@ -103,6 +103,30 @@ document.getElementById("logout-btn").addEventListener("click", async () => {
   location.replace("/");
 });
 
+// Generate API token
+document.getElementById("api-token-btn").addEventListener("click", async (e) => {
+  const btn = e.currentTarget;
+  btn.disabled = true;
+  try {
+    const res = await fetch("/api/auth/api-token", { method: "POST" });
+    if (!res.ok) {
+      alert("Failed to generate API token.");
+      return;
+    }
+    const { token } = await res.json();
+    const box = document.getElementById("api-token-box");
+    const ta = document.getElementById("api-token-value");
+    ta.value = token;
+    box.classList.remove("hidden");
+    ta.focus();
+    ta.select();
+  } catch {
+    alert("Network error. Please try again.");
+  } finally {
+    btn.disabled = false;
+  }
+});
+
 // File upload → populate textarea (.md and .docx supported)
 const fileInput = document.getElementById("post-file");
 document.querySelector('label[for="post-file"]').addEventListener("click", () => fileInput.click());

@@ -50,6 +50,34 @@ describe("jwt", () => {
     const req = makeRequest("GET", "http://localhost/");
     assert.equal(getUserFromRequest(req), null);
   });
+
+  it("getUserFromRequest extracts user from Authorization: Bearer header", () => {
+    const user = { id: "u1", email: "api@example.com", name: "Api" };
+    const token = createToken(user);
+    const req = makeRequest("GET", "http://localhost/", {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    const decoded = getUserFromRequest(req);
+    assert.equal(decoded.email, user.email);
+  });
+
+  it("getUserFromRequest prefers Bearer header over cookie when both present", () => {
+    const bearerUser = { id: "u-bearer", email: "bearer@example.com", name: "Bearer" };
+    const cookieUser = { id: "u-cookie", email: "cookie@example.com", name: "Cookie" };
+    const req = makeRequest("GET", "http://localhost/", {
+      cookies: { token: createToken(cookieUser) },
+      headers: { authorization: `Bearer ${createToken(bearerUser)}` },
+    });
+    const decoded = getUserFromRequest(req);
+    assert.equal(decoded.email, bearerUser.email);
+  });
+
+  it("getUserFromRequest returns null for malformed Bearer token", () => {
+    const req = makeRequest("GET", "http://localhost/", {
+      headers: { authorization: "Bearer not-a-real-token" },
+    });
+    assert.equal(getUserFromRequest(req), null);
+  });
 });
 
 describe("utils-core", () => {
@@ -159,6 +187,33 @@ describe("auth handler — magic link", () => {
     assert.equal(res.headers.get("location"), "/dashboard.html");
     const cookie = res.headers.get("set-cookie") || "";
     assert.ok(cookie.includes("token="), "session cookie should be set");
+  });
+
+  it("POST /api/auth/api-token returns 401 when unauthenticated", async () => {
+    const req = makeRequest("POST", "http://localhost:8888/api/auth/api-token");
+    const res = await authHandler(req, makeContext({ 0: "api-token" }));
+    assert.equal(res.status, 401);
+  });
+
+  it("POST /api/auth/api-token returns a usable Bearer token", async () => {
+    const user = { id: "u1", email: "alice@example.com", name: "Alice", is_admin: false };
+    const sessionToken = createToken(user);
+    const req = makeRequest("POST", "http://localhost:8888/api/auth/api-token", {
+      cookies: { token: sessionToken },
+    });
+    const res = await authHandler(req, makeContext({ 0: "api-token" }));
+    assert.equal(res.status, 200);
+    const { token } = await res.json();
+    assert.ok(token, "token should be returned");
+
+    // The issued token should authenticate the same identity on subsequent calls.
+    const meReq = makeRequest("GET", "http://localhost:8888/api/auth/me", {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    const meRes = await authHandler(meReq, makeContext({ 0: "me" }));
+    assert.equal(meRes.status, 200);
+    const meData = await meRes.json();
+    assert.equal(meData.email, user.email);
   });
 
   it("magic link verify rejects already-used token", async () => {

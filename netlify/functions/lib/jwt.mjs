@@ -27,10 +27,16 @@ export function verifyTokenVerbose(token) {
 }
 
 /**
- * Extract and verify the session JWT from the incoming request's Cookie header.
- * Returns the decoded user payload, or null if unauthenticated.
+ * Extract and verify the session JWT from the incoming request.
+ * Accepts either an `Authorization: Bearer <token>` header (programmatic
+ * clients) or the `token` cookie (browser sessions). Returns the decoded
+ * user payload, or null if unauthenticated.
  */
 export function getUserFromRequest(req) {
+  const authHeader = req.headers.get("authorization") || "";
+  const bearer = authHeader.match(/^Bearer\s+(.+)$/i);
+  if (bearer) return verifyToken(bearer[1].trim());
+
   const cookie = req.headers.get("cookie") || "";
   const match = cookie.match(/(?:^|;\s*)token=([^;]+)/);
   if (!match) return null;
