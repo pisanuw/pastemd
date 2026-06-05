@@ -6,10 +6,10 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
-# Post view: browser keeps /p/:id URL, Netlify serves post.html
+# Post view: server-side rendered by post-page function (content visible to non-JS clients)
 [[redirects]]
-  from = "/p/:id"
-  to = "/post.html"
+  from = "/p/*"
+  to = "/.netlify/functions/post-page"
   status = 200
 
 # API → Netlify Functions

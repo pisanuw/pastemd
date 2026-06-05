@@ -43,6 +43,9 @@ const postId = pathParts[pathParts.length - 1];
 
 if (!postId || pathParts[0] !== "p") {
   showError("Invalid post URL.");
+} else if (document.body.dataset.ssrRendered) {
+  // Page was server-rendered — content (or password form) is already in the DOM.
+  // For password-protected posts the submit listener below handles the unlock.
 } else {
   fetch(`/api/posts/${postId}`)
     .then(async (res) => {
@@ -60,8 +63,8 @@ if (!postId || pathParts[0] !== "p") {
     .catch(() => showError("Network error. Please try again."));
 }
 
-// Password form submission
-document.getElementById("password-form").addEventListener("submit", async (e) => {
+// Password form submission (runs whether page was SSR or client-fetched)
+document.getElementById("password-form")?.addEventListener("submit", async (e) => {
   e.preventDefault();
   const btn = document.getElementById("pw-btn");
   const pwError = document.getElementById("pw-error");

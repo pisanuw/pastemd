@@ -11,3 +11,10 @@
 2026-05-02 [code] added POST /api/convert/docx endpoint using mammoth; converts .docx to markdown, strips images, extracts title from docx metadata or first heading
 2026-05-02 [code] extended dashboard file upload to accept .docx; conversion result populates title and textarea for edit-then-publish flow
 2026-05-02 [code] Admin button removed from static HTML; injected into DOM dynamically only for admin users
+2026-06-05 [decision] hard-coded pisan@uw.edu and yusuf.pisan@gmail.com as permanent superadmins in env.mjs; ADMIN_EMAILS env var still additive
+2026-06-05 [code] added post-views Blobs store; incremented fire-and-forget on public GET and successful password verify in posts.mjs
+2026-06-05 [code] admin GET /api/admin/posts now batch-fetches view counts and merges as views field on each post
+2026-06-05 [code] admin table shows Views column (right-aligned, tabular numerals) and lock badge on password-protected posts
+2026-06-05 [decision] SSR for /p/:id: post-page.mjs function renders full HTML so non-JS clients (AI agents, curl) see content
+2026-06-05 [code] added post-page.mjs; /p/* redirect changed from post.html to function; OG meta tags included
+2026-06-05 [code] post.js skips initial fetch when body has data-ssr-rendered; password form listener uses optional chaining

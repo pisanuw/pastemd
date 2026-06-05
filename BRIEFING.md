@@ -12,7 +12,7 @@ A Netlify-hosted app for sharing markdown documents. Users sign in (Google OAuth
 - **Email**: Resend (`RESEND_API_KEY`, `AUTH_FROM_EMAIL` env vars)
 - **Markdown rendering**: `marked` + `sanitize-html` (server-side only)
 - **Word conversion**: `mammoth` (server-side, .docx → markdown)
-- **Admin access**: controlled by `ADMIN_EMAILS` env var (comma-separated)
+- **Admin access**: `pisan@uw.edu` and `yusuf.pisan@gmail.com` are hard-coded superadmins; `ADMIN_EMAILS` env var is additive
 
 ## Key Architectural Decisions
 
@@ -21,18 +21,20 @@ A Netlify-hosted app for sharing markdown documents. Users sign in (Google OAuth
 - Admin emails receive plaintext password when a password-protected post is created.
 - Preview (`POST /api/preview`) uses the identical server-side render pipeline — what authors see matches what is published.
 - The Admin button in the dashboard is injected into the DOM dynamically and only for admin users; it does not exist in the static HTML.
+- `/p/:id` is server-side rendered by `post-page.mjs` — full post HTML is in the DOM before JS runs, making content visible to AI agents, curl, and link previewers. `post.js` skips its fetch when `data-ssr-rendered` is set on the body.
 
 ## Non-Goals
 
 - No post editing after publish.
 - No rich-text / WYSIWYG editor (markdown only).
 - No image hosting (embedded images from .docx are stripped).
-- No per-post expiry or access-log features.
+- No per-post expiry or access-log features (view counts are aggregate only, no per-visitor detail).
 
 ## Project Structure
 
 ```
 netlify/functions/
+  post-page.mjs    — SSR handler for /p/:id (returns full HTML, OG tags)
   posts.mjs        — post CRUD (create, get, delete, verify password)
   auth.mjs         — Google OAuth + magic-link
   admin.mjs        — admin list/delete all posts
@@ -45,7 +47,7 @@ netlify/functions/
     email.mjs, jwt.mjs, db.mjs, env.mjs, http.mjs, log.mjs
 static/
   dashboard.js, post.js, admin.js, index.js, style.css
-test/               — node:test suite (52 tests)
+test/               — node:test suite (57 tests)
 ```
 
 ## Environment Variables
