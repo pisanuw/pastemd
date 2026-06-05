@@ -24,9 +24,10 @@ function renderTable(posts) {
 
   tbody.innerHTML = posts.map((p) => `
     <tr data-id="${p.id}">
-      <td><a href="/p/${p.id}" target="_blank" rel="noopener noreferrer">${escHtml(p.title)}</a></td>
+      <td><a href="/p/${p.id}" target="_blank" rel="noopener noreferrer">${escHtml(p.title)}</a>${p.passwordHash ? ' <span style="font-size:.75rem;color:var(--muted);">🔒</span>' : ""}</td>
       <td style="white-space:nowrap;">${escHtml(p.authorName)}<br><span style="font-size:.8rem;color:var(--muted)">${escHtml(p.authorEmail)}</span></td>
       <td style="white-space:nowrap;">${formatDate(p.createdAt)}</td>
+      <td style="text-align:right; font-variant-numeric:tabular-nums;">${p.views ?? 0}</td>
       <td>
         <button class="btn btn-danger delete-btn" data-id="${p.id}" data-title="${escHtml(p.title)}">Delete</button>
       </td>

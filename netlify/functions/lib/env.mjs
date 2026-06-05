@@ -22,11 +22,14 @@ export function getGoogleClientSecret() {
   return getEnv("GOOGLE_CLIENT_SECRET");
 }
 
+const SUPERADMIN_EMAILS = ["pisan@uw.edu", "yusuf.pisan@gmail.com"];
+
 export function getAdminEmails() {
-  return getEnv("ADMIN_EMAILS", "")
+  const envEmails = getEnv("ADMIN_EMAILS", "")
     .split(",")
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean);
+  return [...new Set([...SUPERADMIN_EMAILS, ...envEmails])];
 }
 
 export function getAppUrl(req) {

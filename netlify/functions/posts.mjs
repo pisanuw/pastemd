@@ -16,7 +16,7 @@ import {
   sendEmail,
   renderMarkdown,
   hashPassword, verifyPassword,
-  createPost, getPost, deletePost, getUserPosts,
+  createPost, getPost, deletePost, getUserPosts, incrementPostViews,
 } from "./utils.mjs";
 
 const FN = "posts";
@@ -70,6 +70,9 @@ export default async function handler(req, context) {
         return errorResponse(403, "Incorrect password");
       }
 
+      // Count successful password unlock as a view
+      incrementPostViews(post.id).catch(() => {});
+
       return jsonResponse(200, {
         id: post.id,
         title: post.title,
@@ -96,6 +99,9 @@ export default async function handler(req, context) {
           passwordRequired: true,
         });
       }
+
+      // Count public (non-password) view
+      incrementPostViews(post.id).catch(() => {});
 
       return jsonResponse(200, {
         id: post.id,

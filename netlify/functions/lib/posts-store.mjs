@@ -80,3 +80,17 @@ export async function getAllPosts() {
     .filter(Boolean)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
+
+export async function incrementPostViews(id) {
+  const db = getDb("post-views");
+  const current = (await db.get(id, { type: "json" }).catch(() => null)) || { count: 0 };
+  await db.setJSON(id, { count: current.count + 1 });
+}
+
+export async function getPostViewsBatch(ids) {
+  const db = getDb("post-views");
+  const counts = await Promise.all(
+    ids.map((id) => db.get(id, { type: "json" }).catch(() => null))
+  );
+  return Object.fromEntries(ids.map((id, i) => [id, counts[i]?.count ?? 0]));
+}

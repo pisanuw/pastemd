@@ -9,4 +9,4 @@ export { setCookie, clearCookie, jsonResponse, errorResponse, redirectResponse, 
 export { sendEmail } from "./lib/email.mjs";
 export { generateId, validateEmail, safeJson, hashPassword, verifyPassword } from "./lib/utils-core.mjs";
 export { renderMarkdown } from "./lib/markdown.mjs";
-export { createPost, getPost, deletePost, getUserPosts, getAllPosts } from "./lib/posts-store.mjs";
+export { createPost, getPost, deletePost, getUserPosts, getAllPosts, incrementPostViews, getPostViewsBatch } from "./lib/posts-store.mjs";

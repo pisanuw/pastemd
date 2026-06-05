@@ -11,7 +11,7 @@ import {
   getUserFromRequest,
   jsonResponse, errorResponse,
   log,
-  getAllPosts, deletePost,
+  getAllPosts, deletePost, getPostViewsBatch,
 } from "./utils.mjs";
 
 const FN = "admin";
@@ -33,7 +33,9 @@ export default async function handler(req, context) {
     if (err) return err;
     log("info", FN, "listing all posts", { admin: user.email });
     const posts = await getAllPosts();
-    return jsonResponse(200, { posts });
+    const views = await getPostViewsBatch(posts.map((p) => p.id));
+    const postsWithViews = posts.map((p) => ({ ...p, views: views[p.id] ?? 0 }));
+    return jsonResponse(200, { posts: postsWithViews });
   }
 
   // DELETE /api/admin/posts/:id — admin delete any post
