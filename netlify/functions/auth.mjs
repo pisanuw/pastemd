@@ -1,8 +1,10 @@
 /**
  * auth.mjs — Authentication router
  *
- *   GET  /api/auth/google/start          — initiate Google OAuth
- *   GET  /api/auth/google/callback       — Google OAuth callback
+ *   GET  /api/auth/google/start          — initiate Google sign-in (through Supabase,
+ *                                          or directly when GOOGLE_AUTH_VIA=direct)
+ *   GET  /api/auth/supabase/callback     — Supabase returns here after Google
+ *   GET  /api/auth/google/callback       — Google OAuth callback (direct mode only)
  *   POST /api/auth/magic-link/request    — send magic link email
  *   GET  /api/auth/magic-link/verify     — verify magic link token
  *   POST /api/auth/logout                — clear session cookie
@@ -19,6 +21,8 @@ import {
   log,
   generateId, validateEmail, safeJson,
   sendEmail,
+  PKCE_COOKIE, getGoogleAuthMode, makePkcePair, supabaseAuthorizeUrl, exchangeSupabaseCode,
+  verifiedGoogleEmail, supabaseDisplayName, ensurePlatformProfile,
 } from "./utils.mjs";
 
 const FN = "auth";
@@ -54,6 +58,69 @@ export default async function handler(req, context) {
   log("info", FN, "request", { method: req.method, path: subPath });
 
   // ── GET /api/auth/google/start ─────────────────────────────────────────────
+  if (req.method === "GET" && subPath === "google/start" && getGoogleAuthMode() === "supabase") {
+    // Supabase talks to Google; it returns here with a code bound to this
+    // browser by the PKCE verifier in an HttpOnly cookie.
+    const { verifier, challenge } = makePkcePair();
+    const redirectTo = `${getAppUrl(req)}/api/auth/supabase/callback`;
+    const headers = new Headers({ Location: supabaseAuthorizeUrl({ redirectTo, challenge }) });
+    headers.append("Set-Cookie", setCookie(PKCE_COOKIE, verifier, 10 * 60));
+    log("info", FN, "google/start via supabase", { redirectTo });
+    return new Response(null, { status: 302, headers });
+  }
+
+  // ── GET /api/auth/supabase/callback ────────────────────────────────────────
+  if (req.method === "GET" && subPath === "supabase/callback") {
+    const url = new URL(req.url);
+    const code = url.searchParams.get("code") || "";
+    const errorParam = url.searchParams.get("error");
+    const fail = (reason) => {
+      const headers = new Headers({ Location: `/?error=${reason}` });
+      headers.append("Set-Cookie", clearCookie(PKCE_COOKIE));
+      return new Response(null, { status: 302, headers });
+    };
+
+    if (errorParam) {
+      log("warn", FN, "supabase callback error", { error: errorParam });
+      return fail(errorParam === "access_denied" ? "google-auth-cancelled" : "google-auth-failed");
+    }
+    if (!code) return fail("google-auth-failed");
+
+    const cookie = req.headers.get("cookie") || "";
+    const verifierMatch = cookie.match(new RegExp(`(?:^|;\\s*)${PKCE_COOKIE}=([^;]+)`));
+    if (!verifierMatch) {
+      log("warn", FN, "supabase callback without a PKCE verifier cookie");
+      return fail("google-state-missing");
+    }
+
+    const session = await exchangeSupabaseCode(code, verifierMatch[1]);
+    if (!session) {
+      log("error", FN, "supabase code exchange failed");
+      return fail("google-auth-failed");
+    }
+
+    const email = validateEmail(verifiedGoogleEmail(session.user) || "");
+    if (!email) {
+      log("warn", FN, "supabase user has no Google-verified email");
+      return fail("google-auth-failed");
+    }
+
+    await ensurePlatformProfile(session.accessToken);
+    const { user } = await getOrCreateUser(email, supabaseDisplayName(session.user));
+    const appToken = createToken({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      is_admin: !!user.is_admin,
+    });
+
+    log("info", FN, "google sign-in via supabase successful", { email: user.email });
+    const headers = new Headers({ Location: "/dashboard.html" });
+    headers.append("Set-Cookie", setCookie("token", appToken));
+    headers.append("Set-Cookie", clearCookie(PKCE_COOKIE));
+    return new Response(null, { status: 302, headers });
+  }
+
   if (req.method === "GET" && subPath === "google/start") {
     const clientId = getGoogleClientId();
     const appUrl = getAppUrl(req);

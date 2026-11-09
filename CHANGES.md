@@ -18,3 +18,7 @@
 2026-06-05 [decision] SSR for /p/:id: post-page.mjs function renders full HTML so non-JS clients (AI agents, curl) see content
 2026-06-05 [code] added post-page.mjs; /p/* redirect changed from post.html to function; OG meta tags included
 2026-06-05 [code] post.js skips initial fetch when body has data-ssr-rendered; password form listener uses optional chaining
+
+2026-11-09 [decision] Google sign-in moves to the shared HintWise Supabase project (owner): Google sees only Supabase's callback, so new addresses need no Google Cloud change.
+2026-11-09 [code] google/start redirects to Supabase /authorize with PKCE; new /api/auth/supabase/callback exchanges the code, accepts only a Google-verified email, signs in by email as before.
+2026-11-09 [code] GOOGLE_AUTH_VIA=direct keeps the old Google client flow for rollback and local dev; netlify.toml sends paste-md.netlify.app to paste-md.hintwise.org.
