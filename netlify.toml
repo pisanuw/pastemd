@@ -6,6 +6,15 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
+# The primary address is paste-md.hintwise.org. Send the old netlify.app address
+# there so a sign-in never starts on one host and returns to the other (its
+# cookies would be on the wrong host). Deploy previews use other hosts.
+[[redirects]]
+  from = "https://paste-md.netlify.app/*"
+  to = "https://paste-md.hintwise.org/:splat"
+  status = 301
+  force = true
+
 # Post view: server-side rendered by post-page function (content visible to non-JS clients)
 [[redirects]]
   from = "/p/*"

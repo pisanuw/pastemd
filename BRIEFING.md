@@ -8,7 +8,7 @@ A Netlify-hosted app for sharing markdown documents. Users sign in (Google OAuth
 
 - **Hosting**: Netlify (static files + serverless Functions v2)
 - **Storage**: Netlify Blobs (key-value; no SQL database)
-- **Auth**: JWTs in HttpOnly cookies; Google OAuth + magic-link email via Resend
+- **Auth**: JWTs in HttpOnly cookies; Google sign-in through the shared HintWise Supabase project (PKCE, server-side; users still keyed by email) + magic-link email via Resend
 - **Email**: Resend (`RESEND_API_KEY`, `AUTH_FROM_EMAIL` env vars)
 - **Markdown rendering**: `marked` + `sanitize-html` (server-side only)
 - **Word conversion**: `mammoth` (server-side, .docx → markdown)
@@ -58,6 +58,8 @@ test/               — node:test suite (57 tests)
 | `APP_URL` | Base URL for email links |
 | `RESEND_API_KEY` | Resend email API key |
 | `AUTH_FROM_EMAIL` | Sender address |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | OAuth |
+| `GOOGLE_AUTH_VIA` | `supabase` (default) or `direct` (old Google client flow, rollback) |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | OAuth, `direct` mode only |
+| `SUPABASE_URL` / `SUPABASE_ANON_KEY` | Optional overrides; default to the shared HintWise project |
 | `ADMIN_EMAILS` | Comma-separated admin addresses |
 | `COOKIE_SECURE` | `auto` (default), `true`, or `false` |

@@ -40,12 +40,30 @@ Required env vars (set in Netlify or a local `.env` consumed by `netlify dev`):
 | Variable                | Purpose                                        |
 | ----------------------- | ---------------------------------------------- |
 | `JWT_SECRET`            | Signs all session and API tokens               |
-| `GOOGLE_CLIENT_ID`      | Google OAuth client                            |
-| `GOOGLE_CLIENT_SECRET`  | Google OAuth client                            |
+| `GOOGLE_AUTH_VIA`       | `supabase` (default) or `direct` (see below)   |
+| `GOOGLE_CLIENT_ID`      | Google OAuth client (`direct` mode only)       |
+| `GOOGLE_CLIENT_SECRET`  | Google OAuth client (`direct` mode only)       |
+| `SUPABASE_URL`          | Optional; defaults to the shared HintWise project |
+| `SUPABASE_ANON_KEY`     | Optional; defaults to that project's public key |
 | `RESEND_API_KEY`        | Email delivery (magic links, admin notifs)     |
 | `AUTH_FROM_EMAIL`       | From-address for outbound email                |
 | `ADMIN_EMAILS`          | Comma-separated admin email allowlist          |
 | `APP_URL`               | Public base URL (optional; auto-detected)      |
+
+### Google sign-in
+
+Google sign-in goes through the shared HintWise Supabase project: Supabase
+talks to Google, then returns to `/api/auth/supabase/callback` with a code that
+PasteMD exchanges (PKCE, verifier in an HttpOnly cookie) for the person's
+Google-verified email. PasteMD then signs them in exactly as before: users are
+still keyed by email in Netlify Blobs and the session is still PasteMD's own
+`token` cookie, so existing accounts and posts are unchanged. Google only knows
+Supabase's callback, so a new address for PasteMD needs no Google Cloud change;
+Supabase accepts any `https://*.hintwise.org/**` return address.
+
+`GOOGLE_AUTH_VIA=direct` switches back to the original flow (PasteMD's own
+Google client and `/api/auth/google/callback`), for rollback or for local
+development, where Supabase will not return to `localhost`.
 
 ## HTTP API
 
