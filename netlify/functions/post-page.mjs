@@ -9,6 +9,7 @@
  */
 export const config = { path: "/p/*" };
 import { getPost, incrementPostViews, log } from "./utils.mjs";
+import { SITE_FOOTER_HTML } from "./lib/site-footer.mjs";
 
 const FN = "post-page";
 
@@ -27,7 +28,7 @@ function fmtDate(iso) {
   });
 }
 
-function shell(title, ogDescription, bodyAttrs, inner) {
+export function shell(title, ogDescription, bodyAttrs, inner) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,6 +54,7 @@ function shell(title, ogDescription, bodyAttrs, inner) {
     ${inner}
   </div>
   <script src="/static/post.js"></script>
+${SITE_FOOTER_HTML}
 </body>
 </html>`;
 }
