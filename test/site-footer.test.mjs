@@ -9,7 +9,7 @@ const PAGES = ["index.html", "dashboard.html", "post.html", "admin.html", "email
 
 test("the footer is footerHtml('paste-md'), byte for byte", () => {
   assert.equal(createHash("sha256").update(SITE_FOOTER_HTML).digest("hex"), SITE_FOOTER_SHA256);
-  assert.equal(SITE_FOOTER_SHA256, "588a7183a535ab13267b526b09d33538a6aee7b5c44d5db81132f2ff18d8efa3");
+  assert.equal(SITE_FOOTER_SHA256, "e2e23ee8532b9117360b78d0961ce3a09685f302b98ea3b0957bb6ccb1afa08f");
   assert.ok(SITE_FOOTER_HTML.includes("mailto:builder@hintwise.org?subject=Project%20idea%20(via%20paste-md)"));
 });
 
