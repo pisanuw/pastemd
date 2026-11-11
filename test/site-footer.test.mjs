@@ -27,3 +27,16 @@ test("server-rendered post pages carry the footer once, just before </body>", as
   assert.equal(html.split("data-site-footer").length - 1, 1);
   assert.ok(html.includes(`${SITE_FOOTER_HTML}\n</body>`));
 });
+
+test("every Content-Security-Policy allows the footer's own style by its hash, and nothing more", () => {
+  const css = SITE_FOOTER_HTML.match(/<style>([\s\S]*?)<\/style>/)[1];
+  const hash = `'sha256-${createHash("sha256").update(css).digest("base64")}'`;
+  const toml = readFileSync(new URL("../netlify.toml", import.meta.url), "utf8");
+  const policies = [...toml.matchAll(/Content-Security-Policy\s*=\s*"([^"]*)"/g)].map((m) => m[1]);
+  assert.ok(policies.length >= 3);
+  for (const p of policies) {
+    // Without it the browser drops the footer's <style>: it shows unstyled, left-aligned.
+    assert.match(p, new RegExp(`style-src 'self' ${hash.replace(/[+/=]/g, "\\$&")};`));
+    assert.doesNotMatch(p, /unsafe-inline/);
+  }
+});

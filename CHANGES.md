@@ -26,3 +26,4 @@
 2026-11-10 [code] Sign-in buttons follow Google's branding guidelines: Google's G (sha256-checked), light theme, 40px pill; magic-link button no longer more prominent.
 2026-11-10 [code] Shared HintWise footer on every page (6 static pages and server-rendered posts): footerHtml('paste-md') from claude-built-apps scripts/site-footer.mjs, sha256-checked; owner's yes.
 2026-11-11 [code] Footer copy updated to the HintWise icon version (claude-built-apps 2e17481).
+2026-11-11 [code] Footer was unstyled (left-aligned) on every page: the CSP style-src 'self' blocked its inline style. CSP now allows that one style by sha256 hash; test keeps them in step.
