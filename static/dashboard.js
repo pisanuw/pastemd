@@ -159,6 +159,7 @@ fileInput.addEventListener("change", async () => {
       if (imagesStripped) {
         document.getElementById("images-stripped-notice").classList.remove("hidden");
       }
+      window.hintwise?.track("file_imported", { kind: "docx" });
     } catch {
       showPostAlert("Network error converting Word document. Please try again.");
       document.getElementById("file-name").textContent = "";
@@ -170,6 +171,7 @@ fileInput.addEventListener("change", async () => {
     const reader = new FileReader();
     reader.onload = (e) => { document.getElementById("post-content").value = e.target.result; };
     reader.readAsText(file);
+    window.hintwise?.track("file_imported", { kind: "md" });
     const titleEl = document.getElementById("post-title");
     if (!titleEl.value) {
       titleEl.value = file.name.replace(/\.(md|markdown)$/i, "").replace(/[-_]/g, " ");
@@ -204,6 +206,7 @@ document.getElementById("preview-btn").addEventListener("click", async () => {
       const html = await res.text();
       win.document.write(html);
       win.document.close();
+      window.hintwise?.track("preview_opened");
     } else {
       win.close();
       showPostAlert("Preview failed. Please try again.");
@@ -242,6 +245,8 @@ document.getElementById("post-form").addEventListener("submit", async (e) => {
       link.href = url;
       link.textContent = url;
       box.classList.remove("hidden");
+      // HintWise analytics: only whether the post has a password, never its content.
+      window.hintwise?.track("post_created", { protected: Boolean(password) });
 
       // Reset form
       document.getElementById("post-form").reset();

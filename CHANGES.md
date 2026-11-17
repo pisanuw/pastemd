@@ -28,3 +28,7 @@
 2026-11-11 [code] Footer copy updated to the HintWise icon version (claude-built-apps 2e17481).
 2026-11-11 [code] Footer was unstyled (left-aligned) on every page: the CSP style-src 'self' blocked its inline style. CSP now allows that one style by sha256 hash; test keeps them in step.
 2026-11-11 [code] HintWise icon as favicon on every page (static and server-rendered); ships on the next deploy.
+
+2026-11-17 [code] HintWise first-party analytics (owner: add, do not deploy; branch analytics): hw-events.js copied unchanged and sha256-checked, its tag in <head> of the 6 static pages as paste-md, every CSP connect-src allows https://auth.hintwise.org.
+2026-11-17 [code] Dashboard events post_created {protected}, file_imported {kind}, preview_opened; never content, titles or ids.
+2026-11-17 [decision] /p/:id pages carry no analytics tag for now: post ids (12 base64url chars) are masked as :id only about 4 in 10 times, so most paths would carry the id. Owner decides.
