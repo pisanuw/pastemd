@@ -66,7 +66,7 @@ function publicInner(post) {
     <div id="password-view" class="hidden">
       <div class="card password-card">
         <h2 class="password-card-title" id="pw-post-title"></h2>
-        <p class="post-meta" style="margin-bottom:1.5rem;">By <span id="pw-post-author"></span> · <span id="pw-post-date"></span></p>
+        <p class="post-meta">By <span id="pw-post-author"></span> · <span id="pw-post-date"></span></p>
         <div class="alert alert-error hidden" id="pw-error"></div>
         <form id="password-form">
           <div class="form-group">
@@ -91,7 +91,7 @@ function passwordInner(post) {
     <div id="password-view">
       <div class="card password-card">
         <h2 class="password-card-title" id="pw-post-title">${esc(post.title)}</h2>
-        <p class="post-meta" style="margin-bottom:1.5rem;">By <span id="pw-post-author">${esc(post.authorName)}</span> · <span id="pw-post-date">${fmtDate(post.createdAt)}</span></p>
+        <p class="post-meta">By <span id="pw-post-author">${esc(post.authorName)}</span> · <span id="pw-post-date">${fmtDate(post.createdAt)}</span></p>
         <div class="alert alert-error hidden" id="pw-error"></div>
         <form id="password-form">
           <div class="form-group">

@@ -299,3 +299,43 @@ textarea { min-height: 320px; font-family: "SFMono-Regular", Consolas, "Liberati
   font-size: .875rem;
   color: var(--muted);
 }
+
+/* Page helpers. The CSP allows no style="" attributes (only the two in
+   Google's G on the sign-in page, by hash), so pages use these classes.
+   test/csp.test.mjs checks it. */
+.container-narrow { max-width: 420px; padding-top: 4rem; }
+.text-center { text-align: center; }
+.muted { color: var(--muted); }
+.text-xs { font-size: .8rem; }
+.text-danger { color: var(--danger); }
+.m-0 { margin: 0; }
+.mt-05 { margin-top: .5rem; }
+.mt-1 { margin-top: 1rem; }
+.mt-2 { margin-top: 2rem; }
+.mb-075 { margin-bottom: .75rem; }
+.mb-2 { margin-bottom: 2rem; }
+.nowrap { white-space: nowrap; }
+.btn-sm { font-size: .85rem; padding: .35rem .8rem; }
+
+.brand-title { margin: 0 0 .25rem; font-size: 1.5rem; }
+.brand-tagline { margin: 0 0 1.75rem; color: var(--muted); font-size: .95rem; }
+.page-icon { font-size: 3rem; margin-bottom: 1rem; }
+.page-title { margin: 0 0 .5rem; font-size: 1.4rem; }
+.loading-page { padding: 4rem 0; }
+.password-card .post-meta { margin-bottom: 1.5rem; }
+
+.card-title { margin: 0 0 1.25rem; font-size: 1.2rem; }
+.card-title-tight { margin-bottom: .5rem; }
+.card-intro { margin: 0 0 1rem; color: var(--muted); font-size: .9rem; }
+.file-pick { margin: 0; cursor: pointer; color: var(--accent); }
+.field-hint { margin: .35rem 0 0; font-size: .8rem; color: var(--muted); }
+.form-actions { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+.token-box p { margin: 0 0 .5rem; }
+.token-box textarea { width: 100%; font-family: monospace; font-size: .8rem; }
+
+.admin-heading { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+.admin-heading h1 { margin: 0; font-size: 1.3rem; }
+.admin-heading .count { color: var(--muted); font-size: .9rem; }
+.admin-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.admin-table .email { font-size: .8rem; color: var(--muted); }
+.admin-table .lock { font-size: .75rem; color: var(--muted); }

@@ -24,17 +24,17 @@ function renderTable(posts) {
 
   tbody.innerHTML = posts.map((p) => `
     <tr data-id="${p.id}">
-      <td><a href="/p/${p.id}" target="_blank" rel="noopener noreferrer">${escHtml(p.title)}</a>${p.passwordHash ? ' <span style="font-size:.75rem;color:var(--muted);">🔒</span>' : ""}</td>
-      <td style="white-space:nowrap;">${escHtml(p.authorName)}<br><span style="font-size:.8rem;color:var(--muted)">${escHtml(p.authorEmail)}</span></td>
-      <td style="white-space:nowrap;">${formatDate(p.createdAt)}</td>
-      <td style="text-align:right; font-variant-numeric:tabular-nums;">${p.views ?? 0}</td>
+      <td><a href="/p/${p.id}" target="_blank" rel="noopener noreferrer">${escHtml(p.title)}</a>${p.passwordHash ?  ' <span class="lock">🔒</span>' : ""}</td>
+      <td class="nowrap">${escHtml(p.authorName)}<br><span class="email">${escHtml(p.authorEmail)}</span></td>
+      <td class="nowrap">${formatDate(p.createdAt)}</td>
+      <td class="num">${p.views ?? 0}</td>
       <td>
         <button class="btn btn-danger delete-btn" data-id="${p.id}" data-title="${escHtml(p.title)}">Delete</button>
       </td>
     </tr>
   `).join("");
 
-  document.getElementById("posts-table").style.display = "";
+  document.getElementById("posts-table").classList.remove("hidden");
 
   tbody.querySelectorAll(".delete-btn").forEach((btn) => {
     btn.addEventListener("click", () => adminDelete(btn.dataset.id, btn.dataset.title));
@@ -49,7 +49,7 @@ async function adminDelete(id, title) {
       document.querySelector(`tr[data-id="${id}"]`)?.remove();
       const tbody = document.getElementById("posts-tbody");
       if (!tbody.children.length) {
-        document.getElementById("posts-table").style.display = "none";
+        document.getElementById("posts-table").classList.add("hidden");
         document.getElementById("posts-empty").classList.remove("hidden");
       }
     } else {

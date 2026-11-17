@@ -56,7 +56,7 @@ async function loadPosts() {
     renderPostList(posts);
   } catch {
     document.getElementById("posts-loading").innerHTML =
-      '<p style="color:var(--danger)">Failed to load posts.</p>';
+      '<p class="text-danger">Failed to load posts.</p>';
   }
 }
 
@@ -88,8 +88,7 @@ fetch("/api/auth/me")
     if (currentUser.is_admin) {
       const adminLink = document.createElement("a");
       adminLink.href = "/admin.html";
-      adminLink.className = "btn btn-secondary";
-      adminLink.style.cssText = "font-size:.85rem; padding:.35rem .8rem;";
+      adminLink.className = "btn btn-secondary btn-sm";
       adminLink.textContent = "Admin";
       document.getElementById("logout-btn").insertAdjacentElement("beforebegin", adminLink);
     }

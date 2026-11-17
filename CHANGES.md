@@ -28,3 +28,6 @@
 2026-11-11 [code] Footer copy updated to the HintWise icon version (claude-built-apps 2e17481).
 2026-11-11 [code] Footer was unstyled (left-aligned) on every page: the CSP style-src 'self' blocked its inline style. CSP now allows that one style by sha256 hash; test keeps them in step.
 2026-11-11 [code] HintWise icon as favicon on every page (static and server-rendered); ships on the next deploy.
+
+2026-11-17 [code] CSP fix (owner: "Fix it"; branch csp-fix, not deployed): every style="" attribute moved to classes in static/style.css, since style-src has no unsafe-inline and the browser dropped them all; the two inside Google's G (sha256-checked asset) are allowed by hash in style-src-attr with unsafe-hashes.
+2026-11-17 [code] email-sent.html's inline script moved to static/email-sent.js: script-src 'self' blocked it, so the page never showed the address. test/csp.test.mjs checks no style attributes, no inline scripts and the address.
