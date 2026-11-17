@@ -13,9 +13,12 @@ const PAGES = [
   "email-sent.html",
   "404.html",
 ];
-const TAG = '<script defer src="/hw-events.js" data-app="paste-md"></script>';
+// data-mask="/p/": a post id is too plain for the script's id rule, so the
+// segment after /p/ is always sent as ":id".
+const TAG =
+  '<script defer src="/hw-events.js" data-app="paste-md" data-mask="/p/"></script>';
 const HW_EVENTS_SHA256 =
-  "fe0b6e92ddd6093e9ba7fa2b9fff32cd68bb5a42e191e9770fda93e5a1ba6227";
+  "d2833162b9f18f9f2fdb36dbd62440c13ee26c6600200d8e55ad32b907f00633";
 
 test("hw-events.js is the platform's copy, byte for byte", () => {
   const js = readFileSync(new URL("../hw-events.js", import.meta.url));
@@ -36,10 +39,13 @@ for (const page of PAGES) {
   });
 }
 
-test("server-rendered post pages carry no analytics tag: most post ids would be sent unmasked", async () => {
+test("server-rendered post pages load hw-events.js once, in <head>, with /p/ masked", async () => {
   const { shell } = await import("../netlify/functions/post-page.mjs");
   const html = shell("t", "d", "", "<p>x</p>");
-  assert.doesNotMatch(html, /hw-events/);
+  assert.equal(html.split("hw-events.js").length - 1, 2);
+  assert.equal(html.split(TAG).length - 1, 1);
+  const head = html.slice(html.indexOf("<head>"), html.indexOf("</head>"));
+  assert.ok(head.includes(TAG));
 });
 
 test("every Content-Security-Policy lets the beacon reach auth.hintwise.org and loads scripts from 'self' only", () => {

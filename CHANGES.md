@@ -32,3 +32,4 @@
 2026-11-17 [code] HintWise first-party analytics (owner: add, do not deploy; branch analytics): hw-events.js copied unchanged and sha256-checked, its tag in <head> of the 6 static pages as paste-md, every CSP connect-src allows https://auth.hintwise.org.
 2026-11-17 [code] Dashboard events post_created {protected}, file_imported {kind}, preview_opened; never content, titles or ids.
 2026-11-17 [decision] /p/:id pages carry no analytics tag for now: post ids (12 base64url chars) are masked as :id only about 4 in 10 times, so most paths would carry the id. Owner decides.
+2026-11-17 [code] hw-events.js updated to the platform copy with data-mask (sha256 d2833162); every tag carries data-mask="/p/" and /p/:id pages now load it too, so a post's path is always sent as /p/:id, never the id.
