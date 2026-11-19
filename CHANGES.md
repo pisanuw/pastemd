@@ -28,3 +28,6 @@
 2026-11-11 [code] Footer copy updated to the HintWise icon version (claude-built-apps 2e17481).
 2026-11-11 [code] Footer was unstyled (left-aligned) on every page: the CSP style-src 'self' blocked its inline style. CSP now allows that one style by sha256 hash; test keeps them in step.
 2026-11-11 [code] HintWise icon as favicon on every page (static and server-rendered); ships on the next deploy.
+2026-11-19 [code] Security updates in production dependencies (npm audit fix, lockfile only): @xmldom/xmldom 0.8.13 -> 0.8.15 under mammoth; sanitize-html 2.17.5 -> 2.18.2 with postcss 8.5.33, nanoid 3.3.20, source-map-js 1.2.3, htmlparser2 12; prod audit 4 high + 1 moderate -> 0.
+2026-11-19 [code] Correction to the line above (never merged): only the four high-advisory packages update: @xmldom/xmldom 0.8.15 under mammoth, postcss 8.5.33, nanoid 3.3.20, source-map-js 1.2.3.
+2026-11-19 [decision] sanitize-html stays 2.17.5 (2.18 needs Node 20.19+ or 22.12+ for functions); 1 moderate advisory open until the runtime moves. Malformed .docx XML (end tag + junk) now gets 422.
