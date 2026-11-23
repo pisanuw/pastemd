@@ -11,7 +11,6 @@ const PAGES = [
   "post.html",
   "admin.html",
   "email-sent.html",
-  "404.html",
 ];
 // data-mask="/p/": a post id is too plain for the script's id rule, so the
 // segment after /p/ is always sent as ":id".
@@ -38,6 +37,13 @@ for (const page of PAGES) {
     assert.ok(head.includes(TAG));
   });
 }
+
+// 404.html carries no tag: a mistyped post link (/P/<id>, //p/<id>, /<id>)
+// lands there with its id in the path, where data-mask="/p/" does not match.
+test("404.html does not load hw-events.js", () => {
+  const html = readFileSync(new URL("../404.html", import.meta.url), "utf8");
+  assert.equal(html.includes("hw-events"), false);
+});
 
 test("server-rendered post pages load hw-events.js once, in <head>, with /p/ masked", async () => {
   const { shell } = await import("../netlify/functions/post-page.mjs");
