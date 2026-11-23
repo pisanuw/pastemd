@@ -18,7 +18,8 @@ Built as a static site plus Netlify Functions, with Netlify Blobs for storage.
 
 ## Analytics
 
-The static pages load `/hw-events.js`, HintWise's first-party analytics script
+Every page, server-rendered posts included (not the draft preview, which opens
+in a blank tab), loads `/hw-events.js`, HintWise's first-party analytics script
 (claude-built-apps `platform/src/analytics/hw-events.js`, copied unchanged;
 `test/analytics.test.mjs` pins its sha256), as app `paste-md`. Visits are
 counted for HintWise's own analytics, with no cookie and nothing kept in the
@@ -31,9 +32,9 @@ Nothing is sent under Global Privacy Control or Do Not Track. Events go to
 `https://auth.hintwise.org/functions/v1/app-events`, which every CSP's
 `connect-src` allows.
 
-Post pages (`/p/:id`, server-rendered) do not load it: a post id is 12 random
-base64url characters, and the script masks only about 4 in 10 of them, so most
-post addresses would reach the table with their id.
+The tag carries `data-mask="/p/"`: a post id is 12 random base64url characters,
+too plain for the script's id rule, so the mask makes it always send a post's
+address as `/p/:id`, never the id.
 
 ## Tech stack
 
