@@ -28,6 +28,10 @@ function fmtDate(iso) {
   });
 }
 
+// No analytics tag here, unlike the static pages: hw-events.js sends the page's
+// path, and a post id (12 random base64url characters, generateId) is masked as
+// ":id" only about 4 times in 10, so most /p/<id> paths would reach the table
+// with the id in them. test/analytics.test.mjs pins this; the owner decides.
 export function shell(title, ogDescription, bodyAttrs, inner) {
   return `<!DOCTYPE html>
 <html lang="en">

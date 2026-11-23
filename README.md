@@ -16,6 +16,25 @@ Built as a static site plus Netlify Functions, with Netlify Blobs for storage.
 - Admin view (configured via `ADMIN_EMAILS`)
 - Programmatic API access via Bearer token
 
+## Analytics
+
+The static pages load `/hw-events.js`, HintWise's first-party analytics script
+(claude-built-apps `platform/src/analytics/hw-events.js`, copied unchanged;
+`test/analytics.test.mjs` pins its sha256), as app `paste-md`. Visits are
+counted for HintWise's own analytics, with no cookie and nothing kept in the
+browser: the page's path (ids masked, never the query or hash), how long it was
+open, the referring site's host, the host of a link followed out, and the first
+few script errors with quoted text taken out. The dashboard also sends
+`post_created` (whether the post has a password), `file_imported` (`md` or
+`docx`) and `preview_opened`. Never what a visitor types, pastes or uploads.
+Nothing is sent under Global Privacy Control or Do Not Track. Events go to
+`https://auth.hintwise.org/functions/v1/app-events`, which every CSP's
+`connect-src` allows.
+
+Post pages (`/p/:id`, server-rendered) do not load it: a post id is 12 random
+base64url characters, and the script masks only about 4 in 10 of them, so most
+post addresses would reach the table with their id.
+
 ## Tech stack
 
 - Static HTML/CSS/JS frontend (no build step)
@@ -130,6 +149,7 @@ Same endpoint also lists (`GET`) and deletes (`DELETE`) your posts.
 
 ```
 index.html, post.html, dashboard.html, admin.html   — page shells
+hw-events.js                                         — HintWise analytics (unchanged copy)
 static/                                              — page scripts + CSS
 netlify/functions/
   auth.mjs        — sign-in, sessions, API tokens
