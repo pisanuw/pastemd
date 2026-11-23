@@ -299,3 +299,10 @@ textarea { min-height: 320px; font-family: "SFMono-Regular", Consolas, "Liberati
   font-size: .875rem;
   color: var(--muted);
 }
+
+/* Privacy note on the sign-in page: what the analytics sends */
+.privacy-note {
+  margin: 1.5rem 0 0;
+  font-size: .8rem;
+  color: var(--muted);
+}

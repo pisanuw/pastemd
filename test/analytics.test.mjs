@@ -63,3 +63,51 @@ test("every Content-Security-Policy lets the beacon reach auth.hintwise.org and 
     assert.match(p, /script-src 'self';/);
   }
 });
+
+test("the sign-in page's privacy note says what is sent, names every dashboard event, and has no inline style", () => {
+  const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const note = html.match(
+    /<p class="privacy-note" id="privacy">([\s\S]*?)<\/p>/,
+  );
+  assert.ok(note, "index.html has the privacy note");
+  assert.doesNotMatch(note[0], /\sstyle=/);
+  const body = html.slice(
+    html.indexOf("<body>"),
+    html.indexOf("data-site-footer"),
+  );
+  assert.ok(body.includes(note[0]), "the note is in <body>, before the footer");
+  const text = note[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ");
+  for (const phrase of [
+    "HintWise's own analytics",
+    "the pages viewed",
+    "how long each was on screen",
+    "links followed to other sites",
+    "script errors",
+    "/p/:id, never the post's own code",
+    "nothing you write or upload is sent",
+    "uses no cookie",
+    "Do Not Track",
+    "Global Privacy Control",
+  ]) {
+    assert.ok(text.includes(phrase), `the note says "${phrase}"`);
+  }
+  // The dashboard's own events, each named in the note.
+  const js = readFileSync(
+    new URL("../static/dashboard.js", import.meta.url),
+    "utf8",
+  );
+  const events = new Set(
+    [...js.matchAll(/hintwise\?\.track\("([a-z_]+)"/g)].map((m) => m[1]),
+  );
+  assert.deepEqual([...events].sort(), [
+    "file_imported",
+    "post_created",
+    "preview_opened",
+  ]);
+  const said = {
+    post_created: "a post is created (and whether it has a password)",
+    file_imported: "a file is imported",
+    preview_opened: "a preview is opened",
+  };
+  for (const e of events) assert.ok(text.includes(said[e]), e);
+});

@@ -36,6 +36,10 @@ The tag carries `data-mask="/p/"`: a post id is 12 random base64url characters,
 too plain for the script's id rule, so the mask makes it always send a post's
 address as `/p/:id`, never the id.
 
+Visitors read the same on the sign-in page (`index.html`), in the privacy note
+under the sign-in card (`#privacy`); `test/analytics.test.mjs` checks that it
+names every dashboard event.
+
 ## Tech stack
 
 - Static HTML/CSS/JS frontend (no build step)

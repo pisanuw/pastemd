@@ -36,3 +36,4 @@
 2026-11-19 [code] Correction to the line above (never merged): only the four high-advisory packages update: @xmldom/xmldom 0.8.15 under mammoth, postcss 8.5.33, nanoid 3.3.20, source-map-js 1.2.3.
 2026-11-19 [decision] sanitize-html stays 2.17.5 (2.18 needs Node 20.19+ or 22.12+ for functions); 1 moderate advisory open until the runtime moves. Malformed .docx XML (end tag + junk) now gets 422.
 2026-11-23 [code] Branch analytics brought up to date with main as analytics-on-main (owner: "Merge all the apps"); merging deploys it; origin https://paste-md.hintwise.org already registered (shared/0016).
+2026-11-23 [code] Privacy note on the sign-in page (index.html #privacy, class privacy-note in style.css, no inline style): what the analytics sends, /p/:id never the post code, no content, no cookie, DNT/GPC; test checks it names every dashboard event.
