@@ -17,7 +17,7 @@ import {
   jsonResponse, errorResponse, redirectResponse, authRedirectResponse,
   setCookie, clearCookie,
   getDb,
-  getEnv, getGoogleClientId, getGoogleClientSecret, getAdminEmails, getAppUrl,
+  getGoogleClientId, getGoogleClientSecret, getAdminEmails, getAppUrl,
   log,
   generateId, validateEmail, safeJson,
   sendEmail,
@@ -53,7 +53,7 @@ async function getOrCreateUser(email, name = "") {
   return { user, isNew };
 }
 
-export default async function handler(req, context) {
+export default async function handler(req) {
   const subPath = new URL(req.url).pathname.replace(/^\/api\/auth\/?/, "");
   log("info", FN, "request", { method: req.method, path: subPath });
 

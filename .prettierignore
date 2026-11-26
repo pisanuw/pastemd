@@ -1,0 +1,3 @@
+# The platform's analytics script, copied unchanged and sha256-checked
+# (test/analytics.test.mjs): never reformat it.
+hw-events.js

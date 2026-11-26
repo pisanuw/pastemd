@@ -1,7 +1,7 @@
 /**
  * test/posts.test.mjs — unit tests for post CRUD
  */
-import { describe, it, before, beforeEach, after } from "node:test";
+import { describe, it, before, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { createMemoryDb, makeRequest, makeContext } from "./helpers.mjs";
 import { createToken } from "../netlify/functions/lib/jwt.mjs";

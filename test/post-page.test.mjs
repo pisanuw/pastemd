@@ -72,9 +72,14 @@ test("a not-found page loads no analytics, so a malformed link cannot send a pos
 test("a not-found page shows its message without JavaScript", async () => {
   for (const [path, message] of NOT_FOUND) {
     const html = await (await get(path)).text();
-    assert.ok(html.includes('<div id="error-view">'), `${path}: the error view is shown`);
     assert.ok(
-      html.includes(`<div class="alert alert-error" id="error-msg">${message}</div>`),
+      html.includes('<div id="error-view">'),
+      `${path}: the error view is shown`,
+    );
+    assert.ok(
+      html.includes(
+        `<div class="alert alert-error" id="error-msg">${message}</div>`,
+      ),
       `${path}: ${message}`,
     );
   }
@@ -82,14 +87,21 @@ test("a not-found page shows its message without JavaScript", async () => {
 
 // netlify.toml's [[headers]] blocks: { "/*": { header: value }, "/p/*": ... }.
 function tomlHeaders() {
-  const toml = readFileSync(new URL("../netlify.toml", import.meta.url), "utf8")
-    .replace(/^\s*#.*$/gm, "");
+  const toml = readFileSync(
+    new URL("../netlify.toml", import.meta.url),
+    "utf8",
+  ).replace(/^\s*#.*$/gm, "");
   const blocks = {};
   for (const block of toml.split("[[headers]]").slice(1)) {
     const path = block.match(/^\s*for\s*=\s*"([^"]+)"/m)[1];
-    const values = block.slice(block.indexOf("[headers.values]")).split(/^\s*\[/m)[1];
+    const values = block
+      .slice(block.indexOf("[headers.values]"))
+      .split(/^\s*\[/m)[1];
     blocks[path] = Object.fromEntries(
-      [...values.matchAll(/^\s*([A-Za-z-]+)\s*=\s*"([^"]*)"/gm)].map((m) => [m[1], m[2]]),
+      [...values.matchAll(/^\s*([A-Za-z-]+)\s*=\s*"([^"]*)"/gm)].map((m) => [
+        m[1],
+        m[2],
+      ]),
     );
   }
   return blocks;
@@ -106,12 +118,24 @@ test("every post-page response, found or not, carries netlify.toml's security he
     "X-Content-Type-Options",
     "X-Frame-Options",
   ]);
-  assert.match(expected["Content-Security-Policy"], /img-src \* data:;/, "the /p/* policy");
+  assert.match(
+    expected["Content-Security-Policy"],
+    /img-src \* data:;/,
+    "the /p/* policy",
+  );
   for (const path of [...found(), ...NOT_FOUND.map(([p]) => p)]) {
     const res = await get(path);
-    assert.equal(res.headers.get("content-type"), "text/html; charset=utf-8", path);
+    assert.equal(
+      res.headers.get("content-type"),
+      "text/html; charset=utf-8",
+      path,
+    );
     for (const [name, value] of Object.entries(expected)) {
-      assert.equal(res.headers.get(name), value, `${path} (${res.status}): ${name}`);
+      assert.equal(
+        res.headers.get(name),
+        value,
+        `${path} (${res.status}): ${name}`,
+      );
     }
   }
 });
