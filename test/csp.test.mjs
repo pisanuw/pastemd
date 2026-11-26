@@ -4,7 +4,7 @@
 // G on the sign-in page, allowed by hash in style-src-attr.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import vm from "node:vm";
 import { createMemoryDb, makeRequest } from "./helpers.mjs";
@@ -18,21 +18,32 @@ const preview = (await import("../netlify/functions/preview.mjs")).default;
 
 const read = (path) =>
   readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
-const PAGES = [
-  "index.html",
-  "dashboard.html",
-  "post.html",
-  "admin.html",
-  "email-sent.html",
-  "404.html",
-];
-const SCRIPTS = [
-  "static/index.js",
-  "static/dashboard.js",
-  "static/post.js",
-  "static/admin.js",
-  "static/email-sent.js",
-];
+// Every page and page script in the repository, found on disk so a new one
+// cannot be missed (hw-events.js, the platform's copy, writes no markup).
+const filesIn = (dir, ext) =>
+  readdirSync(new URL(`../${dir}`, import.meta.url))
+    .filter((f) => f.endsWith(ext))
+    .sort();
+const PAGES = filesIn("", ".html");
+const SCRIPTS = filesIn("static/", ".js").map((f) => `static/${f}`);
+
+test("the pages and scripts checked here are all of them", () => {
+  assert.deepEqual(PAGES, [
+    "404.html",
+    "admin.html",
+    "dashboard.html",
+    "email-sent.html",
+    "index.html",
+    "post.html",
+  ]);
+  assert.deepEqual(SCRIPTS, [
+    "static/admin.js",
+    "static/dashboard.js",
+    "static/email-sent.js",
+    "static/index.js",
+    "static/post.js",
+  ]);
+});
 
 const styleAttrs = (html) =>
   [...html.matchAll(/\sstyle\s*=\s*"([^"]*)"/gi)].map((m) => m[1]);
@@ -54,7 +65,8 @@ const directive = (csp, name) =>
     .map((d) => d.trim())
     .find((d) => d.split(/\s+/)[0] === name);
 
-// Every page as served: the static files, a public and a password post, a missing post, a preview.
+// Every page as served: the static files, a public and a password post, the
+// not-found pages (malformed links included), a preview.
 async function servedPages() {
   const pages = PAGES.map((page) => ({ name: page, html: read(page) }));
   createMemoryDb();
@@ -74,12 +86,15 @@ async function servedPages() {
     passwordHash: "00",
     passwordSalt: "00",
   });
-  for (const [name, id] of [
-    ["public post", open.id],
-    ["password post", locked.id],
-    ["missing post", "nope"],
+  for (const [name, path] of [
+    ["public post", `/p/${open.id}`],
+    ["password post", `/p/${locked.id}`],
+    ["missing post", "/p/nope"],
+    ["no post id", "/p/"],
+    ["//p/<id>", "//p/nope"],
+    ["/p//<id>", "/p//nope"],
   ]) {
-    const res = await postPage(new Request(`http://localhost/p/${id}`));
+    const res = await postPage(new Request(`http://localhost${path}`));
     pages.push({ name, html: await res.text() });
   }
   const token = createToken({ email: "a@example.com", name: "A" });
