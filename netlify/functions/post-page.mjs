@@ -28,6 +28,27 @@ function fmtDate(iso) {
   });
 }
 
+// Netlify's [[headers]] in netlify.toml do not apply to a function's response,
+// so the post page sets them itself: the /* block's security headers and the
+// /p/* Content-Security-Policy (img-src * for a post's own images), the same
+// text as netlify.toml (test/post-page.test.mjs keeps them in step). The page
+// loads only same-origin files (style.css, hw-events.js, post.js), the favicon
+// as a data: URI, and the footer's <style>, allowed by its hash.
+const POST_PAGE_CSP =
+  "default-src 'self'; script-src 'self'; style-src 'self' 'sha256-4VDViIffTKl8oDDJg58VHCVBOHSQm7GPM7eZ1fAKuzc='; img-src * data:; connect-src 'self' https://auth.hintwise.org; frame-ancestors 'none';";
+
+function ct() {
+  return {
+    "Content-Type": "text/html; charset=utf-8",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()",
+    "Content-Security-Policy": POST_PAGE_CSP,
+  };
+}
+
 const ANALYTICS_TAG = `
   <!-- HintWise first-party analytics (hw-events.js, copied unchanged; test/analytics.test.mjs) -->
   <script defer src="/hw-events.js" data-app="paste-md" data-mask="/p/"></script>`;
@@ -174,8 +195,4 @@ export default async function handler(req) {
     publicInner(post),
   );
   return new Response(html, { status: 200, headers: ct() });
-}
-
-function ct() {
-  return { "Content-Type": "text/html; charset=utf-8" };
 }

@@ -1,7 +1,9 @@
 // post-page.mjs, the server-rendered /p/<id> page: the analytics tag only where
-// data-mask="/p/" covers the path.
+// data-mask="/p/" covers the path, and the security headers netlify.toml gives
+// every other page (its [[headers]] do not apply to a function's response).
 import { test, before } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { createMemoryDb } from "./helpers.mjs";
 
 const { createPost } = await import("../netlify/functions/lib/posts-store.mjs");
@@ -75,5 +77,41 @@ test("a not-found page shows its message without JavaScript", async () => {
       html.includes(`<div class="alert alert-error" id="error-msg">${message}</div>`),
       `${path}: ${message}`,
     );
+  }
+});
+
+// netlify.toml's [[headers]] blocks: { "/*": { header: value }, "/p/*": ... }.
+function tomlHeaders() {
+  const toml = readFileSync(new URL("../netlify.toml", import.meta.url), "utf8")
+    .replace(/^\s*#.*$/gm, "");
+  const blocks = {};
+  for (const block of toml.split("[[headers]]").slice(1)) {
+    const path = block.match(/^\s*for\s*=\s*"([^"]+)"/m)[1];
+    const values = block.slice(block.indexOf("[headers.values]")).split(/^\s*\[/m)[1];
+    blocks[path] = Object.fromEntries(
+      [...values.matchAll(/^\s*([A-Za-z-]+)\s*=\s*"([^"]*)"/gm)].map((m) => [m[1], m[2]]),
+    );
+  }
+  return blocks;
+}
+
+test("every post-page response, found or not, carries netlify.toml's security headers and the /p/* CSP", async () => {
+  const blocks = tomlHeaders();
+  const expected = { ...blocks["/*"], ...blocks["/p/*"] };
+  assert.deepEqual(Object.keys(expected).sort(), [
+    "Content-Security-Policy",
+    "Permissions-Policy",
+    "Referrer-Policy",
+    "Strict-Transport-Security",
+    "X-Content-Type-Options",
+    "X-Frame-Options",
+  ]);
+  assert.match(expected["Content-Security-Policy"], /img-src \* data:;/, "the /p/* policy");
+  for (const path of [...found(), ...NOT_FOUND.map(([p]) => p)]) {
+    const res = await get(path);
+    assert.equal(res.headers.get("content-type"), "text/html; charset=utf-8", path);
+    for (const [name, value] of Object.entries(expected)) {
+      assert.equal(res.headers.get(name), value, `${path} (${res.status}): ${name}`);
+    }
   }
 });
