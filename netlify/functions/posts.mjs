@@ -46,7 +46,7 @@ async function notifyAdmin(post, req, plainPassword) {
   });
 }
 
-export default async function handler(req, context) {
+export default async function handler(req) {
   const subPath = new URL(req.url).pathname.replace(/^\/api\/posts\/?/, "");
   log("info", FN, "request", { method: req.method, path: subPath });
 

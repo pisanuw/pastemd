@@ -38,8 +38,10 @@ for (const page of PAGES) {
   });
 }
 
-// 404.html carries no tag: a mistyped post link (/P/<id>, //p/<id>, /<id>)
-// lands there with its id in the path, where data-mask="/p/" does not match.
+// 404.html carries no tag: a mistyped post link (/P/<id>, /<id>) lands there
+// with its id in the path, where data-mask="/p/" does not match. (//p/<id> and
+// /p//<id> do not: they reach post-page.mjs, whose not-found page carries no
+// tag either; test/post-page.test.mjs.)
 test("404.html does not load hw-events.js", () => {
   const html = readFileSync(new URL("../404.html", import.meta.url), "utf8");
   assert.equal(html.includes("hw-events"), false);

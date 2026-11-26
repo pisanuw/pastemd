@@ -18,8 +18,10 @@ Built as a static site plus Netlify Functions, with Netlify Blobs for storage.
 
 ## Analytics
 
-Every page, server-rendered posts included (not the draft preview, which opens
-in a blank tab), loads `/hw-events.js`, HintWise's first-party analytics script
+Every page, server-rendered posts included, loads `/hw-events.js`, except the
+draft preview (it opens in a blank tab) and the not-found pages (`404.html` and
+post-page's own, which a malformed link such as `//p/<id>` reaches; the mask
+below would not cover its id). It is HintWise's first-party analytics script
 (claude-built-apps `platform/src/analytics/hw-events.js`, copied unchanged;
 `test/analytics.test.mjs` pins its sha256), as app `paste-md`. Visits are
 counted for HintWise's own analytics, with no cookie and nothing kept in the
@@ -39,6 +41,10 @@ address as `/p/:id`, never the id.
 Visitors read the same on the sign-in page (`index.html`), in the privacy note
 under the sign-in card (`#privacy`); `test/analytics.test.mjs` checks that it
 names every dashboard event.
+
+Post pages (`netlify/functions/post-page.mjs`) send their own
+Content-Security-Policy and security headers, the same as `netlify.toml`'s:
+Netlify does not apply `[[headers]]` to a function's response.
 
 ## Tech stack
 

@@ -23,7 +23,7 @@ function requireAdmin(req) {
   return { user, err: null };
 }
 
-export default async function handler(req, context) {
+export default async function handler(req) {
   const subPath = new URL(req.url).pathname.replace(/^\/api\/admin\/?/, "");
   log("info", FN, "request", { method: req.method, path: subPath });
 

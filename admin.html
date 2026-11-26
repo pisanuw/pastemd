@@ -15,28 +15,28 @@
     <a href="/dashboard.html" class="logo">PasteMD</a>
     <span class="spacer"></span>
     <span class="user-email" id="user-email"></span>
-    <button class="btn btn-secondary" id="logout-btn" style="font-size:.85rem; padding:.35rem .8rem;">Sign out</button>
+    <button class="btn btn-secondary btn-sm" id="logout-btn">Sign out</button>
   </header>
 
   <div class="container">
     <div id="auth-error" class="alert alert-error hidden">You need admin access to view this page.</div>
 
     <div id="admin-panel" class="hidden">
-      <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;">
-        <h1 style="margin:0; font-size:1.3rem;">All posts</h1>
-        <span id="post-count" style="color:var(--muted); font-size:.9rem;"></span>
+      <div class="admin-heading">
+        <h1>All posts</h1>
+        <span id="post-count" class="count"></span>
       </div>
 
       <div class="card">
         <div id="posts-loading" class="loading"><span class="spinner"></span></div>
-        <p id="posts-empty" class="hidden" style="color:var(--muted); margin:0;">No posts yet.</p>
-        <table class="admin-table" id="posts-table" style="display:none;">
+        <p id="posts-empty" class="hidden muted m-0">No posts yet.</p>
+        <table class="admin-table hidden" id="posts-table">
           <thead>
             <tr>
               <th>Title</th>
               <th>Author</th>
               <th>Date</th>
-              <th style="text-align:right;">Views</th>
+              <th class="num">Views</th>
               <th>Actions</th>
             </tr>
           </thead>

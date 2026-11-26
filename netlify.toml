@@ -72,9 +72,15 @@
     Strict-Transport-Security   = "max-age=31536000; includeSubDomains"
     Referrer-Policy             = "strict-origin-when-cross-origin"
     Permissions-Policy          = "camera=(), microphone=(), geolocation=(), payment=()"
-    Content-Security-Policy     = "default-src 'self'; script-src 'self'; style-src 'self' 'sha256-4VDViIffTKl8oDDJg58VHCVBOHSQm7GPM7eZ1fAKuzc='; img-src 'self' data:; connect-src 'self' https://auth.hintwise.org; frame-ancestors 'none';"
+    # style-src-attr: only the two style="" attributes inside Google's G on the
+    # sign-in page (sha256-checked asset, test/google-button.test.mjs), by hash.
+    # Every other page uses classes in static/style.css (test/csp.test.mjs).
+    Content-Security-Policy     = "default-src 'self'; script-src 'self'; style-src 'self' 'sha256-4VDViIffTKl8oDDJg58VHCVBOHSQm7GPM7eZ1fAKuzc='; style-src-attr 'unsafe-hashes' 'sha256-QIjW/+aUzfg58HcITJNHkkCTGmLovNUIQbL+Zq2TsIE=' 'sha256-2LBff+ZJlJxkM8SFdDjtw2nmc28qZvirrWOZ1lfthg8='; img-src 'self' data:; connect-src 'self' https://auth.hintwise.org; frame-ancestors 'none';"
 
-# Post view: allow external images from markdown content
+# Post view: allow external images from markdown content. Netlify does not
+# apply these headers to a function's response, so post-page.mjs sends this policy
+# and the /* headers itself (test/post-page.test.mjs keeps them the same); this
+# block still covers 404.html where it answers under /p/.
 [[headers]]
   for = "/p/*"
   [headers.values]
