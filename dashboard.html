@@ -15,13 +15,13 @@
     <a href="/dashboard.html" class="logo">PasteMD</a>
     <span class="spacer"></span>
     <span class="user-email" id="user-email"></span>
-    <button class="btn btn-secondary" id="logout-btn" style="font-size:.85rem; padding:.35rem .8rem;">Sign out</button>
+    <button class="btn btn-secondary btn-sm" id="logout-btn">Sign out</button>
   </header>
 
   <div class="container">
     <!-- New post form -->
-    <div class="card" style="margin-bottom:2rem;">
-      <h2 style="margin:0 0 1.25rem; font-size:1.2rem;">New post</h2>
+    <div class="card mb-2">
+      <h2 class="card-title">New post</h2>
 
       <div id="post-alert" class="alert hidden"></div>
 
@@ -33,12 +33,12 @@
 
         <div class="form-group">
           <div class="file-row">
-            <label for="post-file" style="margin:0; cursor:pointer; color:var(--accent);">Upload .md or .docx file</label>
-            <input type="file" id="post-file" accept=".md,.markdown,.docx,text/markdown,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">
+            <label for="post-file" class="file-pick">Upload .md or .docx file</label>
+            <input type="file" id="post-file" accept=".md,.markdown,.docx,text/markdown,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="hidden">
             <span id="file-name"></span>
-            <span id="file-converting" class="hidden" style="color:var(--muted); font-size:.8rem;">Converting…</span>
+            <span id="file-converting" class="hidden muted text-xs">Converting…</span>
           </div>
-          <div id="images-stripped-notice" class="alert alert-success hidden" style="margin-bottom:.75rem;">
+          <div id="images-stripped-notice" class="alert alert-success hidden mb-075">
             Images were stripped from the Word document (text only is supported).
           </div>
           <label for="post-content">Markdown content</label>
@@ -48,13 +48,13 @@
         <div class="form-group">
           <label for="post-password">Password (optional)</label>
           <input type="password" id="post-password" name="password" placeholder="Leave blank for public access" autocomplete="new-password">
-          <p style="margin:.35rem 0 0; font-size:.8rem; color:var(--muted);">If set, viewers must enter this password. It cannot be changed later.</p>
+          <p class="field-hint">If set, viewers must enter this password. It cannot be changed later.</p>
         </div>
 
-        <div style="display:flex; gap:.75rem; align-items:center; flex-wrap:wrap;">
+        <div class="form-actions">
           <button type="submit" class="btn btn-primary" id="post-btn">Publish</button>
           <button type="button" class="btn btn-secondary" id="preview-btn">Preview in new tab</button>
-          <span style="font-size:.8rem; color:var(--muted);">Posts cannot be edited after publishing.</span>
+          <span class="muted text-xs">Posts cannot be edited after publishing.</span>
         </div>
       </form>
     </div>
@@ -67,25 +67,25 @@
 
     <!-- My posts -->
     <div class="card">
-      <h2 style="margin:0 0 1.25rem; font-size:1.2rem;">My posts</h2>
+      <h2 class="card-title">My posts</h2>
       <div id="posts-loading" class="loading"><span class="spinner"></span></div>
-      <p id="posts-empty" class="hidden" style="color:var(--muted); margin:0;">No posts yet.</p>
+      <p id="posts-empty" class="hidden muted m-0">No posts yet.</p>
       <ul class="post-list" id="post-list"></ul>
     </div>
 
     <!-- API access -->
-    <div class="card" style="margin-top:2rem;">
-      <h2 style="margin:0 0 .5rem; font-size:1.2rem;">API access</h2>
-      <p style="margin:0 0 1rem; color:var(--muted); font-size:.9rem;">
+    <div class="card mt-2">
+      <h2 class="card-title card-title-tight">API access</h2>
+      <p class="card-intro">
         Generate a token to post programmatically. Send it as
         <code>Authorization: Bearer &lt;token&gt;</code> on requests to
         <code>POST /api/posts</code>. Token is valid for 365 days and carries
         your identity — treat it like a password.
       </p>
       <button class="btn btn-secondary" id="api-token-btn">Generate API token</button>
-      <div id="api-token-box" class="alert alert-success hidden" style="margin-top:1rem;">
-        <p style="margin:0 0 .5rem;"><strong>Copy this token now — it will not be shown again:</strong></p>
-        <textarea id="api-token-value" readonly rows="3" style="width:100%; font-family:monospace; font-size:.8rem;"></textarea>
+      <div id="api-token-box" class="alert alert-success hidden mt-1 token-box">
+        <p><strong>Copy this token now — it will not be shown again:</strong></p>
+        <textarea id="api-token-value" readonly rows="3"></textarea>
       </div>
     </div>
   </div>

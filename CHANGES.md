@@ -38,3 +38,7 @@
 2026-11-23 [code] Branch analytics brought up to date with main as analytics-on-main (owner: "Merge all the apps"); merging deploys it; origin https://paste-md.hintwise.org already registered (shared/0016).
 2026-11-23 [code] Privacy note on the sign-in page (index.html #privacy, class privacy-note in style.css, no inline style): what the analytics sends, /p/:id never the post code, no content, no cookie, DNT/GPC; test checks it names every dashboard event.
 2026-11-23 [code] 404.html loads no analytics: a mistyped post link (/P/<id>, //p/<id>) would send the raw id there, past data-mask="/p/" (review of PR #5)
+
+2026-11-17 [code] CSP fix (owner: "Fix it"; branch csp-fix, not deployed): every style="" attribute moved to classes in static/style.css, since style-src has no unsafe-inline and the browser dropped them all; the two inside Google's G (sha256-checked asset) are allowed by hash in style-src-attr with unsafe-hashes.
+2026-11-17 [code] email-sent.html's inline script moved to static/email-sent.js: script-src 'self' blocked it, so the page never showed the address. test/csp.test.mjs checks no style attributes, no inline scripts and the address.
+2026-11-26 [code] The two 2026-11-17 csp-fix lines above arrive here: branch csp-fix (1cb58a5, never merged) cherry-picked onto main as fix/paste-md-followups, its CSP keeping connect-src https://auth.hintwise.org and its CSS beside the privacy note from #5; csp-fix itself is left as it was.
