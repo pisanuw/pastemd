@@ -28,10 +28,17 @@ function fmtDate(iso) {
   });
 }
 
+const ANALYTICS_TAG = `
+  <!-- HintWise first-party analytics (hw-events.js, copied unchanged; test/analytics.test.mjs) -->
+  <script defer src="/hw-events.js" data-app="paste-md" data-mask="/p/"></script>`;
+
 // The analytics tag carries data-mask="/p/", as on the static pages: a post id
 // (12 random base64url characters, generateId) is too plain for hw-events.js's
 // id rule, so the mask makes the script always send /p/<id> as /p/:id.
-export function shell(title, ogDescription, bodyAttrs, inner) {
+// { analytics: false } leaves the tag out, for the not-found pages: a malformed
+// link (//p/<id>, /p//<id>) reaches this function too, and there the mask does
+// not match, so the script would send the raw id.
+export function shell(title, ogDescription, bodyAttrs, inner, { analytics = true } = {}) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,9 +50,7 @@ export function shell(title, ogDescription, bodyAttrs, inner) {
   <meta property="og:type" content="article">
   <link rel="stylesheet" href="/static/style.css">
   <!-- HintWise icon (platform/brand/hintwise-icon.svg) -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000'%3E%3Crect width='1000' height='1000' rx='250' fill='%23312E81'/%3E%3Cg transform='translate%280 1000%29 scale%281 -1%29'%3E%3Cpath fill='%23FFFFFF' d='M557 253V442Q557 467 541 483Q525 499 501 499Q484 499 471 492Q458 485 450 472Q443 459 443 442L403 461Q403 500 419 529Q435 558 465 574Q494 590 532 590Q571 590 600 574Q629 558 645 530Q661 502 661 465V253ZM339 253V747H443V253Z'/%3E%3Cpath fill='%23FF7A45' d='M750 893 L781 781 L893 750 L781 719 L750 607 L719 719 L607 750 L719 781Z'/%3E%3C/g%3E%3C/svg%3E%0A" />
-  <!-- HintWise first-party analytics (hw-events.js, copied unchanged; test/analytics.test.mjs) -->
-  <script defer src="/hw-events.js" data-app="paste-md" data-mask="/p/"></script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000'%3E%3Crect width='1000' height='1000' rx='250' fill='%23312E81'/%3E%3Cg transform='translate%280 1000%29 scale%281 -1%29'%3E%3Cpath fill='%23FFFFFF' d='M557 253V442Q557 467 541 483Q525 499 501 499Q484 499 471 492Q458 485 450 472Q443 459 443 442L403 461Q403 500 419 529Q435 558 465 574Q494 590 532 590Q571 590 600 574Q629 558 645 530Q661 502 661 465V253ZM339 253V747H443V253Z'/%3E%3Cpath fill='%23FF7A45' d='M750 893 L781 781 L893 750 L781 719 L750 607 L719 719 L607 750 L719 781Z'/%3E%3C/g%3E%3C/svg%3E%0A" />${analytics ? ANALYTICS_TAG : ""}
 </head>
 <body ${bodyAttrs}>
   <header class="site-header">
@@ -122,6 +127,15 @@ function notFoundInner() {
     <div id="post-view" class="hidden"></div>`;
 }
 
+// No analytics tag here (see shell). The message is filled in on the whole
+// page, where the error view is; post.js shows the same one after its fetch.
+function notFound(message) {
+  const html = shell("Not Found", "Post not found", "", notFoundInner(), { analytics: false })
+    .replace('id="error-view" class="hidden"', 'id="error-view"')
+    .replace('id="error-msg">', `id="error-msg">${esc(message)}`);
+  return new Response(html, { status: 404, headers: ct() });
+}
+
 export default async function handler(req) {
   if (req.method !== "GET") {
     return new Response("Method not allowed", { status: 405 });
@@ -130,21 +144,11 @@ export default async function handler(req) {
   const id = new URL(req.url).pathname.replace(/^\/p\//, "").replace(/\/$/, "");
   log("info", FN, "request", { id });
 
-  if (!id) {
-    const html = shell("Not Found", "Post not found", "",
-      notFoundInner().replace('id="error-view" class="hidden"', 'id="error-view"')
-        .replace('id="error-msg">', 'id="error-msg">Invalid post URL.'));
-    return new Response(html, { status: 404, headers: ct() });
-  }
+  if (!id) return notFound("Invalid post URL.");
 
   const post = await getPost(id);
 
-  if (!post) {
-    const html = shell("Not Found", "Post not found", "",
-      notFoundInner().replace('id="error-view" class="hidden"', 'id="error-view"')
-        .replace('id="error-msg">', 'id="error-msg">This post does not exist or has been deleted.'));
-    return new Response(html, { status: 404, headers: ct() });
-  }
+  if (!post) return notFound("This post does not exist or has been deleted.");
 
   if (post.passwordHash) {
     const html = shell(
