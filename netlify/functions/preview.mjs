@@ -40,6 +40,9 @@ export default async function handler(req) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Light and dark mode (claude-built-apps platform/src/theme, both copied unchanged; test/theme.test.mjs): data-theme before the first paint, then the switch -->
+  <script src="/hw-theme-init.js"></script>
+  <script defer src="/hw-theme.js"></script>
   <title>${displayTitle} — Preview — PasteMD</title>
   <link rel="stylesheet" href="/static/style.css">
   <!-- HintWise icon (platform/brand/hintwise-icon.svg) -->
@@ -50,6 +53,7 @@ export default async function handler(req) {
     <a href="/dashboard.html" class="logo">PasteMD</a>
     <span class="spacer"></span>
     <span class="preview-badge">Preview — not published</span>
+    <hw-theme-toggle></hw-theme-toggle>
   </header>
   <div class="container">
     <div class="post-header">

@@ -1,3 +1,7 @@
 # The platform's analytics script, copied unchanged and sha256-checked
 # (test/analytics.test.mjs): never reformat it.
 hw-events.js
+# The platform's light and dark mode switch, copied unchanged and sha256-checked
+# (test/theme.test.mjs): never reformat them.
+hw-theme.js
+hw-theme-init.js

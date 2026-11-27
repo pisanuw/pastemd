@@ -2,7 +2,14 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* Colours. Light here; dark twice, for the switch (data-theme on <html>, set
+   by /hw-theme-init.js before the first paint) and for the device setting when
+   scripts do not run (claude-built-apps platform/src/theme/README.md). Both
+   meet WCAG AA contrast; test/theme.test.mjs keeps the two dark blocks the
+   same and checks the text colours. --danger is a button fill (white text on
+   it in both themes); --danger-text is red text. */
 :root {
+  color-scheme: light;
   --bg: #f9f9f9;
   --surface: #ffffff;
   --border: #d1d5db;
@@ -10,11 +17,79 @@
   --muted: #6b7280;
   --accent: #2563eb;
   --accent-hover: #1d4ed8;
+  --on-accent: #ffffff;
   --danger: #dc2626;
   --danger-hover: #b91c1c;
+  --danger-text: #dc2626;
   --success: #16a34a;
+  --code-bg: #f3f4f6;
+  --focus-ring: rgba(37,99,235,.1);
+  --error-bg: #fef2f2;
+  --error-border: #fecaca;
+  --error-text: #991b1b;
+  --success-bg: #f0fdf4;
+  --success-border: #bbf7d0;
+  --success-text: #166534;
+  --badge-bg: #fef3c7;
+  --badge-border: #fcd34d;
+  --badge-text: #92400e;
+  --signin-focus: #0B57D0;
   --radius: 8px;
   --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111827;
+  --surface: #1f2937;
+  --border: #4b5563;
+  --text: #f3f4f6;
+  --muted: #9ca3af;
+  --accent: #60a5fa;
+  --accent-hover: #93c5fd;
+  --on-accent: #0b1220;
+  --danger-text: #f87171;
+  --success: #4ade80;
+  --code-bg: #1f2937;
+  --focus-ring: rgba(96,165,250,.35);
+  --error-bg: #3f1d1d;
+  --error-border: #7f1d1d;
+  --error-text: #fecaca;
+  --success-bg: #0f2e1c;
+  --success-border: #166534;
+  --success-text: #bbf7d0;
+  --badge-bg: #3d2c06;
+  --badge-border: #a16207;
+  --badge-text: #fde68a;
+  --signin-focus: #93c5fd;
+  --shadow: 0 1px 3px rgba(0,0,0,.5), 0 1px 2px rgba(0,0,0,.3);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #111827;
+    --surface: #1f2937;
+    --border: #4b5563;
+    --text: #f3f4f6;
+    --muted: #9ca3af;
+    --accent: #60a5fa;
+    --accent-hover: #93c5fd;
+    --on-accent: #0b1220;
+    --danger-text: #f87171;
+    --success: #4ade80;
+    --code-bg: #1f2937;
+    --focus-ring: rgba(96,165,250,.35);
+    --error-bg: #3f1d1d;
+    --error-border: #7f1d1d;
+    --error-text: #fecaca;
+    --success-bg: #0f2e1c;
+    --success-border: #166534;
+    --success-text: #bbf7d0;
+    --badge-bg: #3d2c06;
+    --badge-border: #a16207;
+    --badge-text: #fde68a;
+    --signin-focus: #93c5fd;
+    --shadow: 0 1px 3px rgba(0,0,0,.5), 0 1px 2px rgba(0,0,0,.3);
+  }
 }
 
 body {
@@ -59,7 +134,16 @@ a:hover { color: var(--accent-hover); }
   color: var(--text);
 }
 .site-header .spacer { flex: 1; }
-.site-header .user-email { font-size: .875rem; color: var(--muted); }
+.site-header .user-email { font-size: .875rem; color: var(--muted); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.site-header > * { flex-shrink: 0; }
+.site-header > .user-email, .site-header > .spacer { flex-shrink: 1; }
+/* On a phone the switch, the address and Sign out share the row. */
+@media (max-width: 480px) { .site-header { gap: .5rem; } }
+/* The light and dark mode switch (hw-theme.js); its place is held until the
+   script draws it, so the header does not move. */
+hw-theme-toggle { display: inline-flex; flex: none; width: 44px; height: 44px; }
+/* The header of the sign-in, email-sent and not-found pages: only the switch. */
+.site-header-plain { background: transparent; border-bottom: none; }
 
 /* Buttons */
 .btn {
@@ -76,9 +160,9 @@ a:hover { color: var(--accent-hover); }
 }
 .btn-primary {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
-.btn-primary:hover { background: var(--accent-hover); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); color: var(--on-accent); }
 .btn-danger {
   background: var(--danger);
   color: #fff;
@@ -97,7 +181,9 @@ a:hover { color: var(--accent-hover); }
    theme (fill #FFFFFF, 1px stroke #747775, text #1F1F1F), Google Sans Medium
    (Roboto or Arial where it is not installed) at 14px on a 20px line, 12px
    before the logo, 10px after it, 12px after the text, a 40px pill. The
-   magic-link button shares the shape, so neither option is more prominent. */
+   magic-link button shares the shape, so neither option is more prominent.
+   Both keep this light theme in dark mode too (Google's light button, unchanged;
+   only the focus ring follows the page). */
 .btn-signin {
   display: flex;
   align-items: center;
@@ -117,7 +203,7 @@ a:hover { color: var(--accent-hover); }
   white-space: nowrap;
 }
 .btn-signin:hover { background: #F8F9FA; color: #1F1F1F; }
-.btn-signin:focus-visible { outline: 2px solid #0B57D0; outline-offset: 2px; }
+.btn-signin:focus-visible { outline: 2px solid var(--signin-focus); outline-offset: 2px; }
 .btn-signin:disabled { cursor: default; opacity: .6; }
 .btn-google .google-g { display: inline-flex; flex: none; width: 20px; height: 20px; margin-right: 10px; }
 .btn-google .google-g svg { display: block; width: 20px; height: 20px; }
@@ -127,6 +213,7 @@ a:hover { color: var(--accent-hover); }
 label { display: block; font-weight: 500; margin-bottom: .35rem; font-size: .9rem; }
 input[type="email"],
 input[type="text"],
+input[type="password"],
 textarea {
   width: 100%;
   padding: .55rem .75rem;
@@ -141,7 +228,7 @@ textarea {
 input:focus, textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 textarea { min-height: 320px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; resize: vertical; }
 
@@ -152,8 +239,8 @@ textarea { min-height: 320px; font-family: "SFMono-Regular", Consolas, "Liberati
   margin-bottom: 1rem;
   font-size: .9rem;
 }
-.alert-error { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
-.alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+.alert-error { background: var(--error-bg); border: 1px solid var(--error-border); color: var(--error-text); }
+.alert-success { background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success-text); }
 
 /* Divider */
 .divider {
@@ -209,14 +296,14 @@ textarea { min-height: 320px; font-family: "SFMono-Regular", Consolas, "Liberati
 }
 .post-body p { margin: .75em 0; }
 .post-body pre {
-  background: #f3f4f6;
+  background: var(--code-bg);
   border: 1px solid var(--border);
   border-radius: 4px;
   padding: 1rem;
   overflow-x: auto;
 }
 .post-body code {
-  background: #f3f4f6;
+  background: var(--code-bg);
   border-radius: 3px;
   padding: .15em .35em;
   font-size: .9em;
@@ -273,9 +360,9 @@ textarea { min-height: 320px; font-family: "SFMono-Regular", Consolas, "Liberati
 /* Preview badge in site header */
 .preview-badge {
   font-size: .8rem;
-  color: #92400e;
-  background: #fef3c7;
-  border: 1px solid #fcd34d;
+  color: var(--badge-text);
+  background: var(--badge-bg);
+  border: 1px solid var(--badge-border);
   padding: .2rem .65rem;
   border-radius: 4px;
 }
@@ -311,10 +398,11 @@ textarea { min-height: 320px; font-family: "SFMono-Regular", Consolas, "Liberati
    Google's G on the sign-in page, by hash), so pages use these classes.
    test/csp.test.mjs checks it. */
 .container-narrow { max-width: 420px; padding-top: 4rem; }
+.site-header-plain + .container-narrow { padding-top: 1rem; }
 .text-center { text-align: center; }
 .muted { color: var(--muted); }
 .text-xs { font-size: .8rem; }
-.text-danger { color: var(--danger); }
+.text-danger { color: var(--danger-text); }
 .m-0 { margin: 0; }
 .mt-05 { margin-top: .5rem; }
 .mt-1 { margin-top: 1rem; }
