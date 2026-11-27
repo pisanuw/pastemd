@@ -5,8 +5,9 @@ import js from "@eslint/js";
 import globals from "globals";
 
 export default [
-  // hw-events.js is the platform's copy, byte for byte (test/analytics.test.mjs).
-  { ignores: ["hw-events.js", ".netlify/"] },
+  // hw-events.js, hw-theme.js and hw-theme-init.js are the platform's copies,
+  // byte for byte (test/analytics.test.mjs, test/theme.test.mjs).
+  { ignores: ["hw-events.js", "hw-theme.js", "hw-theme-init.js", ".netlify/"] },
   js.configs.recommended,
   {
     files: ["static/**/*.js"],

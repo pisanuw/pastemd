@@ -15,6 +15,7 @@ Built as a static site plus Netlify Functions, with Netlify Blobs for storage.
 - Dashboard to view/delete your posts
 - Admin view (configured via `ADMIN_EMAILS`)
 - Programmatic API access via Bearer token
+- Light and dark mode: the round button in each page's header switches the whole page; the first visit follows the device setting and the choice is remembered on that device
 
 ## Analytics
 
@@ -161,6 +162,7 @@ Same endpoint also lists (`GET`) and deletes (`DELETE`) your posts.
 ```
 index.html, post.html, dashboard.html, admin.html   — page shells
 hw-events.js                                         — HintWise analytics (unchanged copy)
+hw-theme-init.js, hw-theme.js                        — HintWise light and dark mode switch (unchanged copies)
 static/                                              — page scripts + CSS
 netlify/functions/
   auth.mjs        — sign-in, sessions, API tokens

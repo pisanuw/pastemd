@@ -65,6 +65,9 @@ export function shell(title, ogDescription, bodyAttrs, inner, { analytics = true
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Light and dark mode (claude-built-apps platform/src/theme, both copied unchanged; test/theme.test.mjs): data-theme before the first paint, then the switch -->
+  <script src="/hw-theme-init.js"></script>
+  <script defer src="/hw-theme.js"></script>
   <title>${esc(title)} — PasteMD</title>
   <meta property="og:title" content="${esc(title)}">
   <meta property="og:description" content="${esc(ogDescription)}">
@@ -77,6 +80,7 @@ export function shell(title, ogDescription, bodyAttrs, inner, { analytics = true
   <header class="site-header">
     <a href="/" class="logo">PasteMD</a>
     <span class="spacer"></span>
+    <hw-theme-toggle></hw-theme-toggle>
   </header>
   <div class="container">
     <div id="loading" class="loading hidden"></div>
