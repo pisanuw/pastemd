@@ -20,7 +20,7 @@ const preview = (await import("../netlify/functions/preview.mjs")).default;
 
 // From platform/src/theme/README.md, "The values". A failure here means a copy differs.
 const HW_THEME_SHA256 =
-  "3b1a9b360cc671e8298b09738924d15fc8c99c112fbebc2db8e1c93cf6891625";
+  "8e78682bb6c0f0a30c20687122363ec3a5bf020df14faaa5235a99d065d71d9c";
 const THEME_INIT_CSP = "'sha256-GhyjaPQKUCt6Zif2GMbTG7M6cUY6iW77/obk7CBvquk='";
 
 const read = (path) =>
@@ -246,6 +246,43 @@ function strayColours(source) {
 const STYLESHEETS = readdirSync(new URL("../static/", import.meta.url))
   .filter((f) => f.endsWith(".css"))
   .map((f) => `static/${f}`);
+
+test("the switch's outline is 3:1 against each header, in both themes", () => {
+  // hw-theme.js draws it as a share of the text colour over what is behind it:
+  // the header's --surface, or --bg behind the sign-in page's plain header.
+  const share =
+    Number(
+      read("hw-theme.js").match(
+        /border-color:var\(--hw-theme-toggle-border,color-mix\(in srgb,currentColor (\d+)%/,
+      )[1],
+    ) / 100;
+  assert.ok(share > 0);
+  const rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  const lum = (c) =>
+    c
+      .map((v) => v / 255)
+      .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+      .reduce((sum, v, i) => sum + v * [0.2126, 0.7152, 0.0722][i], 0);
+  const ratio = (a, b) => {
+    const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  };
+  for (const [name, theme] of [
+    ["light", light],
+    ["dark", dark],
+  ]) {
+    const text = rgb(value(theme, "text"));
+    for (const bgName of ["surface", "bg"]) {
+      const bg = rgb(value(theme, bgName));
+      const outline = text.map((v, i) => share * v + (1 - share) * bg[i]);
+      const r = ratio(outline, bg);
+      assert.ok(
+        r >= 3,
+        `${name}: the outline on --${bgName} is ${r.toFixed(2)}:1`,
+      );
+    }
+  }
+});
 
 test("no colour is hard-coded outside the tokens, in any rule of any stylesheet", () => {
   assert.deepEqual(STYLESHEETS, ["static/style.css"]);
