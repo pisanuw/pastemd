@@ -7,12 +7,15 @@
    scripts do not run (claude-built-apps platform/src/theme/README.md). Both
    meet WCAG AA contrast; test/theme.test.mjs keeps the two dark blocks the
    same and checks the text colours. --danger is a button fill (white text on
-   it in both themes); --danger-text is red text. */
+   it in both themes); --danger-text is red text. --border is for dividers
+   and cards; --field-border edges text fields, 3:1 against their background
+   (WCAG 1.4.11). */
 :root {
   color-scheme: light;
   --bg: #f9f9f9;
   --surface: #ffffff;
   --border: #d1d5db;
+  --field-border: #8b919c;
   --text: #1f2937;
   --muted: #6b7280;
   --accent: #2563eb;
@@ -42,6 +45,7 @@
   --bg: #111827;
   --surface: #1f2937;
   --border: #4b5563;
+  --field-border: #7b8494;
   --text: #f3f4f6;
   --muted: #9ca3af;
   --accent: #60a5fa;
@@ -69,6 +73,7 @@
     --bg: #111827;
     --surface: #1f2937;
     --border: #4b5563;
+    --field-border: #7b8494;
     --text: #f3f4f6;
     --muted: #9ca3af;
     --accent: #60a5fa;
@@ -141,7 +146,7 @@ a:hover { color: var(--accent-hover); }
 @media (max-width: 480px) { .site-header { gap: .5rem; } }
 /* The light and dark mode switch (hw-theme.js); its place is held until the
    script draws it, so the header does not move. */
-hw-theme-toggle { display: inline-flex; flex: none; width: 44px; height: 44px; }
+hw-theme-toggle:not([hidden]) { display: inline-flex; flex: none; width: var(--hw-theme-toggle-size, 44px); height: var(--hw-theme-toggle-size, 44px); }
 /* The header of the sign-in, email-sent and not-found pages: only the switch. */
 .site-header-plain { background: transparent; border-bottom: none; }
 
@@ -217,7 +222,7 @@ input[type="password"],
 textarea {
   width: 100%;
   padding: .55rem .75rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--field-border);
   border-radius: var(--radius);
   font-size: .95rem;
   font-family: inherit;

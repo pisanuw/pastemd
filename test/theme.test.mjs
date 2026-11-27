@@ -6,7 +6,7 @@
 // paint already has the theme.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import vm from "node:vm";
 import { createMemoryDb, makeRequest } from "./helpers.mjs";
@@ -207,24 +207,73 @@ test("text and buttons meet WCAG AA contrast in both themes", () => {
       );
       assert.ok(r >= 4.5, `${name}: --${fg} on --${bg} is ${r.toFixed(2)}:1`);
     }
+    // Text fields' edges: 3:1 against what they sit on (WCAG 1.4.11).
+    for (const bg of ["surface", "bg"]) {
+      const r = ratio(value(theme, "field-border"), value(theme, bg));
+      assert.ok(
+        r >= 3,
+        `${name}: --field-border on --${bg} is ${r.toFixed(2)}:1`,
+      );
+    }
     // White text on the danger buttons, which are the same in both themes.
     assert.ok(ratio("#ffffff", value(light, "danger")) >= 4.5);
   }
 });
 
-test("no colour is hard-coded outside the tokens, except Google's sign-in button and white on red", () => {
-  const rules = css
+// Every hard-coded colour outside the token blocks, in every rule of a
+// stylesheet: [selector, declaration]. Only Google's sign-in button (its own
+// branding colours) and white on the red buttons may have one.
+const ALLOWED = /^\.btn-signin\b|^\.btn-danger\b/;
+const COLOUR = /#[0-9a-fA-F]{3,8}\b|\b(rgba?|hsla?)\(/;
+function strayColours(source) {
+  const rest = source
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .split(/@media \(prefers-color-scheme: dark\)/)[0];
-  const outside = rules
     .replace(/:root(\[data-theme="dark"\])?\s*\{[^}]*\}/g, "")
-    .split("\n")
-    .filter((l) => /#[0-9a-fA-F]{3,6}\b/.test(l));
-  for (const line of outside) {
-    assert.match(
-      line,
-      /#FFFFFF|#747775|#1F1F1F|#F8F9FA|color: #fff;/,
-      `hard-coded colour: ${line.trim()}`,
+    .replace(
+      /@media \(prefers-color-scheme: dark\)\s*\{\s*:root:not\(\[data-theme="light"\]\)\s*\{[^}]*\}\s*\}/g,
+      "",
     );
+  const stray = [];
+  for (const [, selector, body] of rest.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const sel = selector.trim();
+    for (const decl of body.split(";").map((d) => d.trim())) {
+      if (COLOUR.test(decl) && !ALLOWED.test(sel)) stray.push([sel, decl]);
+    }
   }
+  return stray;
+}
+
+const STYLESHEETS = readdirSync(new URL("../static/", import.meta.url))
+  .filter((f) => f.endsWith(".css"))
+  .map((f) => `static/${f}`);
+
+test("no colour is hard-coded outside the tokens, in any rule of any stylesheet", () => {
+  assert.deepEqual(STYLESHEETS, ["static/style.css"]);
+  for (const file of STYLESHEETS)
+    assert.deepEqual(strayColours(read(file)), [], file);
+});
+
+test("the hard-coded colour check catches a planted colour anywhere in the file", () => {
+  const planted = css.replace(
+    ".alert-error { background: var(--error-bg);",
+    ".alert-error { background: #fef2f2;",
+  );
+  assert.notEqual(planted, css);
+  assert.deepEqual(strayColours(planted), [
+    [".alert-error", "background: #fef2f2"],
+  ]);
+  // At the end of the file, inside a media query, and as rgb().
+  assert.deepEqual(
+    strayColours(
+      `${css}\n@media (max-width: 480px) { .admin-table .email { color: rgb(1, 2, 3); } }`,
+    ),
+    [[".admin-table .email", "color: rgb(1, 2, 3)"]],
+  );
+  // Google's button keeps its branding colours; white text on the red button is allowed.
+  assert.deepEqual(
+    strayColours(
+      ".btn-signin { background: #FFFFFF; } .btn-danger { color: #fff; }",
+    ),
+    [],
+  );
 });
